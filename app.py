@@ -16,7 +16,11 @@ app = FastAPI()
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://eli5-alpha.vercel.app",  # Production frontend
+        "http://localhost:5173",          # Local development
+        "http://127.0.0.1:5173"           # Alternative localhost
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
