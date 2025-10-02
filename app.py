@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from google import genai
+import google.generativeai as genai
 import httpx
 import re
 from dotenv import load_dotenv
