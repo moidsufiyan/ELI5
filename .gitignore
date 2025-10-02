@@ -54,8 +54,6 @@ tmp/
 temp/
 .tmp/
 
-# Docker
-.dockerignore
 
 # Frontend specific
 frontend/dist/
