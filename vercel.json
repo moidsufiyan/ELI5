@@ -2,11 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "api/simplify.py",
+      "src": "api/vercel_handler.py",
       "use": "@vercel/python"
     },
     {
@@ -20,7 +16,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api/vercel_handler"
     },
     {
       "src": "/(.*)",
