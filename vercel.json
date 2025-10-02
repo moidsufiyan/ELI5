@@ -19,8 +19,15 @@
       "dest": "/api/vercel_handler"
     },
     {
+      "src": "/",
+      "dest": "/frontend"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONPATH": "."
+  }
 }
