@@ -1,0 +1,44 @@
+# Exclude backend folder (using serverless functions instead)
+backend/
+
+# Python virtual environment
+venv/
+env/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node
+node_modules/
+.next/
+
+# Environment files (will be set in Vercel dashboard)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+dist/
+build/

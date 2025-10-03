@@ -169,26 +169,60 @@ ELI5/
 
 ## 🌍 Deployment
 
-### Frontend (Vercel - Recommended)
+### 🚀 Serverless Deployment to Vercel (Recommended)
+
+Your ELI5 AI Simplifier is now configured for **serverless deployment** with both frontend and backend on Vercel!
+
+#### Quick Deploy (5 minutes)
 ```bash
-# 1. Push to GitHub
-git push origin main
+# 1. Install Vercel CLI
+npm install -g vercel
 
-# 2. Deploy to Vercel
-npx vercel
+# 2. Login
+vercel login
 
-# 3. Set environment variables in Vercel dashboard:
-# GEMINI_API_KEY=your_key_here
-# BACKEND_URL=your_backend_url
+# 3. Deploy
+vercel
+
+# 4. Add GEMINI_API_KEY in Vercel Dashboard
+# Settings → Environment Variables → Add: GEMINI_API_KEY
+
+# 5. Deploy to production
+vercel --prod
 ```
 
-### Backend (Railway/Render)
-```bash
-# 1. Add Procfile to backend/
-echo "web: uvicorn main:app --host 0.0.0.0 --port $PORT" > backend/Procfile
+#### What's Deployed?
+- ✅ Next.js Frontend (React, TypeScript, Tailwind)
+- ✅ Python Serverless Functions (API endpoints)
+- ✅ Automatic HTTPS & CDN
+- ✅ Auto-scaling
+- ✅ Zero server management
 
-# 2. Deploy backend service
-# 3. Update BACKEND_URL in frontend environment
+#### Deployment Files
+- `/api/` - Python serverless functions
+- `vercel.json` - Vercel configuration
+- `requirements.txt` - Python dependencies
+- `.vercelignore` - Excluded files
+
+📚 **Full Guide**: See [`VERCEL_DEPLOYMENT.md`](./VERCEL_DEPLOYMENT.md) for detailed instructions
+
+⚡ **Quick Reference**: See [`DEPLOY_QUICK_START.md`](./DEPLOY_QUICK_START.md) for cheat sheet
+
+### Alternative: Traditional Deployment
+
+If you prefer separate frontend/backend deployment:
+
+#### Frontend (Vercel)
+```bash
+git push origin main
+vercel --prod
+```
+
+#### Backend (Railway/Render)
+```bash
+cd backend
+echo "web: uvicorn main:app --host 0.0.0.0 --port \$PORT" > Procfile
+# Deploy to Railway or Render
 ```
 
 ## 🔧 Development
