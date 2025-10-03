@@ -1,32 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/simplify",
-      "dest": "/api/simplify.py"
-    },
-    {
-      "src": "/api/simplify-stream",
-      "dest": "/api/simplify-stream.py"
-    },
-    {
-      "src": "/api/wiki/(.*)",
-      "dest": "/api/wiki.py"
-    }
-  ],
-  "env": {
-    "GEMINI_API_KEY": "@gemini-api-key"
-  },
   "functions": {
     "api/*.py": {
       "runtime": "python3.9",
