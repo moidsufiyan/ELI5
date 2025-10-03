@@ -1,7 +1,9 @@
 import os
+import json
+import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from google import genai
 import httpx
@@ -76,22 +78,30 @@ async def simplify_text(request: TextRequest):
         if request.use_wiki and request.topic:
             wiki_info = await get_wikipedia_summary(request.topic)
         
-        # Build prompt
+        # Build prompt based on complexity level
+        level_prompts = {
+            "ELI5": "Explain this like I'm 5 years old",
+            "ELI15": "Explain this like I'm 15 years old", 
+            "normal": "Provide a comprehensive adult-level explanation"
+        }
+        
+        level_instruction = level_prompts.get(request.level, "Explain this")
+        
         if wiki_info:
             prompt = f"""
 Context from Wikipedia about "{wiki_info['title']}":
 {wiki_info['summary']}
 
-Now explain this for {request.level}: {request.text}
+Now {level_instruction}: {request.text}
 
 Use the Wikipedia information above to make your explanation more accurate.
 Write in plain text without markdown formatting.
 """
         else:
-            prompt = f"Explain this for {request.level}: {request.text}. Write in plain text without markdown formatting."
+            prompt = f"{level_instruction}: {request.text}. Write in plain text without markdown formatting."
         
         response = client.models.generate_content(
-            model="gemini-2.5-flash", 
+            model="gemini-2.0-flash-exp", 
             contents=prompt
         )
         
@@ -102,6 +112,111 @@ Write in plain text without markdown formatting.
             "used_wiki": wiki_info is not None,
             "wiki_title": wiki_info["title"] if wiki_info else None
         }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.post("/api/simplify-stream")
+async def simplify_text_stream(request: TextRequest):
+    """Stream the simplified text response word by word"""
+    try:
+        if not request.text.strip():
+            raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+        if len(request.text) > 5000:
+            raise HTTPException(status_code=400, detail="Text too long. Maximum 5000 characters")
+        
+        # Get Wikipedia context if requested
+        wiki_info = None
+        if request.use_wiki and request.topic:
+            wiki_info = await get_wikipedia_summary(request.topic)
+        
+        # Build prompt based on complexity level
+        level_prompts = {
+            "ELI5": "Explain this like I'm 5 years old",
+            "ELI15": "Explain this like I'm 15 years old", 
+            "normal": "Provide a comprehensive adult-level explanation"
+        }
+        
+        level_instruction = level_prompts.get(request.level, "Explain this")
+        
+        if wiki_info:
+            prompt = f"""
+Context from Wikipedia about "{wiki_info['title']}":
+{wiki_info['summary']}
+
+Now {level_instruction}: {request.text}
+
+Use the Wikipedia information above to make your explanation more accurate.
+Write in plain text without markdown formatting.
+"""
+        else:
+            prompt = f"{level_instruction}: {request.text}. Write in plain text without markdown formatting."
+        
+        async def generate_stream():
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash-exp", 
+                    contents=prompt
+                )
+                
+                cleaned_text = clean_text(response.text)
+                
+                # Split text into words and stream them
+                words = cleaned_text.split()
+                
+                # Send metadata first
+                metadata = {
+                    "type": "metadata",
+                    "used_wiki": wiki_info is not None,
+                    "wiki_title": wiki_info["title"] if wiki_info else None,
+                    "total_words": len(words)
+                }
+                yield f"data: {json.dumps(metadata)}\n\n"
+                
+                # Stream words with delay to simulate typing
+                current_text = ""
+                for i, word in enumerate(words):
+                    current_text += word + " "
+                    
+                    chunk = {
+                        "type": "content",
+                        "word": word,
+                        "current_text": current_text.strip(),
+                        "word_index": i,
+                        "is_complete": i == len(words) - 1
+                    }
+                    
+                    yield f"data: {json.dumps(chunk)}\n\n"
+                    
+                    # Add slight delay for typing effect
+                    await asyncio.sleep(0.1)
+                
+                # Send completion signal
+                completion = {
+                    "type": "complete",
+                    "final_text": current_text.strip()
+                }
+                yield f"data: {json.dumps(completion)}\n\n"
+                
+            except Exception as e:
+                error_data = {
+                    "type": "error",
+                    "error": str(e)
+                }
+                yield f"data: {json.dumps(error_data)}\n\n"
+        
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream"
+            }
+        )
         
     except HTTPException:
         raise
@@ -121,11 +236,7 @@ def home():
 def health_check():
     return {"status": "healthy", "backend": "Python FastAPI"}
 
-# Serve static files (for production)
-try:
-    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
-except Exception:
-    pass  # In development, frontend runs separately
+# Static files removed - frontend runs as separate Next.js app
 
 if __name__ == "__main__":
     import uvicorn
