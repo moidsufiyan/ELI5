@@ -8,26 +8,29 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue?style=for-the-badge&logo=tailwindcss)
 
-## ✨ Features
+## ✨ Core Features
 
-### 🎯 **Smart Complexity Levels**
-- **ELI5** (Age 5): Simple explanations with basic vocabulary
-- **ELI15** (Age 15): Intermediate explanations for teens  
-- **Normal** (Adult): Comprehensive explanations with **real-time streaming**
+### 🎯 **Three Essential Complexity Levels**
+- **Simple** (ELI5): Easy-to-understand explanations using simple words
+- **General** (ELI15): Clear explanations with moderate complexity  
+- **Professional** (Normal): Comprehensive adult-level explanations with real-time streaming
 
-### 🚀 **Modern Experience**
-- **Real-time Streaming**: ChatGPT-like word-by-word response generation
-- **Beautiful UI/UX**: Glass-morphism design with smooth animations
-- **Wikipedia Integration**: Enhanced explanations with relevant context
-- **Mobile Responsive**: Perfect on all devices
-- **Copy to Clipboard**: Easy sharing of explanations
-- **Example Prompts**: Quick start with predefined queries
+### 🧠 **AI-Powered Simplification**
+- **Google Gemini AI**: Advanced language model for intelligent text transformation
+- **Real-time Streaming**: ChatGPT-like word-by-word response for professional level
+- **Context Understanding**: Maintains meaning while simplifying complexity
 
-### 💫 **Technical Excellence**
-- **TypeScript**: Full type safety and better DX
-- **Server-Sent Events**: Streaming responses without websockets
-- **Modern API Design**: RESTful FastAPI backend
-- **Production Ready**: Optimized for deployment
+### 📚 **Optional Wikipedia Context**
+- **Enhanced Explanations**: Automatically add relevant Wikipedia information
+- **Richer Understanding**: Additional context for complex topics
+- **Toggleable**: Enable or disable in settings based on preference
+
+### 🎨 **Essential Professional Design**
+- **Light & Dark Themes**: Clean, accessible interface with theme switching
+- **Responsive Design**: Works perfectly on all devices
+- **Inter Typography**: Text-focused design with optimal readability
+- **Essential Animations**: Minimal, focused feedback animations
+- **Local Storage**: Browser-based preferences and basic history (no cloud features)
 
 ## 🛠 Tech Stack
 
@@ -138,18 +141,30 @@ POST   /api/simplify-stream # Streaming proxy
 ELI5/
 ├── 🎨 src/
 │   ├── components/         # React components
+│   │   ├── ui/             # Core UI component library
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── TextArea.tsx
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── ThemeProvider.tsx
 │   │   └── SimplificationForm.tsx
 │   ├── pages/             # Next.js pages & API routes
 │   │   ├── api/           # API proxy routes
-│   │   ├── index.tsx      # Welcome homepage
-│   │   └── simplify.tsx   # Main app interface
-│   ├── lib/               # Utilities & helpers
+│   │   ├── _app.tsx       # App root with theme provider
+│   │   ├── index.tsx      # Professional landing page
+│   │   ├── simplify.tsx   # Main simplification interface
+│   │   ├── about.tsx      # About page
+│   │   └── settings.tsx   # Settings page
+│   ├── lib/               # Utilities & state management
+│   │   ├── utils.ts       # Utility functions
+│   │   └── store.ts       # Zustand store for local state
 │   └── styles/            # Global CSS & Tailwind
 ├── 🐍 backend/
 │   ├── main.py            # FastAPI application
 │   └── requirements.txt   # Python dependencies
 ├── 📦 package.json        # Node.js configuration
-└── 🎛 tailwind.config.js   # Styling configuration
+└── 🏛 tailwind.config.js   # Professional color system
 ```
 
 ## 🌍 Deployment
