@@ -1,7 +1,0 @@
-fastapi
-pydantic
-google-generativeai
-requests
-wikipedia-api
-uvicorn
-python-multipart

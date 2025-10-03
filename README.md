@@ -1,100 +1,165 @@
 # 🧠 ELI5 AI Simplifier
 
-A simple AI-powered text simplifier that makes complex topics easy to understand. Built with React and FastAPI using Google's Gemini AI.
+Transform complex topics into easy-to-understand explanations using the power of AI!
 
-## ✨ Features
+## ✅ **FULLY WORKING & READY TO USE!**
 
-- **🤖 AI-Powered**: Uses Google's Gemini AI to simplify complex text
-- **📚 Wikipedia Integration**: Gets context from Wikipedia for better explanations
-- **🎯 Multiple Levels**: Choose ELI5, ELI15, or Normal complexity
-- **🎨 Clean UI**: Simple and easy to use interface
-
-## 🚀 Quick Start
-
-### What You Need
-
-- Node.js 18+ and npm
-- Python 3.11+
-- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
-
-### Setup
-
-1. **Get the code**
-   ```bash
-   git clone https://github.com/yourusername/eli5-simplifier.git
-   cd eli5-simplifier
-   ```
-
-2. **Set up your API key**
-   ```bash
-   # Copy the example file
-   cp .env.example .env
-   
-   # Edit .env and add your API key
-   # GEMINI_API_KEY=your_actual_api_key_here
-   ```
-
-3. **Install stuff**
-   ```bash
-   # Backend
-   pip install -r requirements.txt
-   
-   # Frontend
-   cd frontend
-   npm install
-   cd ..
-   ```
-
-4. **Run it**
-   ```bash
-   # Start backend (Terminal 1)
-   python app.py
-   
-   # Start frontend (Terminal 2)
-   cd frontend
-   npm run dev
-   ```
-
-5. **Use it**
-   - Open http://localhost:5173 in your browser
-   - Backend runs on http://localhost:8000
-
-## 📁 What's Inside
-
-```
-eli5-simplifier/
-├── frontend/              # React frontend
-│   ├── src/
-│   │   ├── components/    # UI components
-│   │   ├── App.tsx       # Main app
-│   │   └── main.tsx      # Entry point
-│   └── package.json      # Frontend dependencies
-├── app.py                # FastAPI backend
-├── requirements.txt      # Python dependencies
-├── .env.example         # Environment template
-└── README.md           # This file
-```
-
-## 🚀 Deploy to GitHub
-
-1. **Create a new repository on GitHub**
-2. **Push your code**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/yourusername/eli5-simplifier.git
-   git push -u origin main
-   ```
-
-## 🌐 Deploy Online
-
-**Vercel (Easy):**
-1. Connect your GitHub repo to Vercel
-2. Add `GEMINI_API_KEY` in Vercel environment variables
-3. Deploy!
-
-**Other platforms:** Railway, Render, or Heroku work too.
+This project features a **Python FastAPI backend** with **Google Gemini AI** and a beautiful **Next.js frontend**!
 
 ---
 
-Made with ❤️ to make complex stuff simple!
+## 🏗️ **Architecture**
+
+```
+ELI5/
+├── backend/                    # Python FastAPI Backend
+│   ├── main.py                # FastAPI application with Gemini AI
+│   ├── requirements.txt       # Python dependencies
+│   └── .env                   # API keys and configuration
+├── src/                       # Next.js Frontend
+│   ├── components/            # React components
+│   ├── pages/                 # Next.js pages
+│   ├── lib/                   # Utilities
+│   └── styles/                # Global styles
+├── start-dev.ps1              # Development startup script
+└── README.md                  # This file
+```
+
+---
+
+## 🚀 **Quick Start**
+
+### **Prerequisites**
+
+- **Python 3.8+** - [Download](https://www.python.org/downloads/)
+- **Node.js 18+** - [Download](https://nodejs.org/)
+- **Google Gemini API Key** - [Get free key](https://aistudio.google.com/app/apikey)
+
+### **Setup in 4 Steps**
+
+1. **Add your API key**
+   ```powershell
+   # Edit backend\.env and add your key:
+   GEMINI_API_KEY=your_actual_api_key_here
+   ```
+
+2. **Run the startup script**
+   ```powershell
+   .\start-dev.ps1
+   ```
+
+3. **Open your browser**
+   - Frontend: `http://localhost:3000`
+   - Backend API Docs: `http://localhost:8000/docs`
+
+4. **Start simplifying!** 🎉
+
+---
+
+## ⚡ **Manual Setup** (Alternative)
+
+### **Backend (Terminal 1)**
+```powershell
+cd backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py
+```
+
+### **Frontend (Terminal 2)**
+```powershell
+npm install
+npm run dev
+```
+
+---
+
+## 🎯 **Key Features**
+
+### **Backend (Python FastAPI)**
+- ✅ **Google Gemini 2.5 Flash** - Latest AI model
+- ✅ **Wikipedia Integration** - Auto context for better explanations
+- ✅ **Text Cleaning** - Clean output without markdown
+- ✅ **Auto Documentation** - Interactive docs at `/docs`
+
+### **Frontend (Next.js + React)**
+- ✅ **3 Complexity Levels** - Age 5, 15, Adult
+- ✅ **Text-to-Speech** - Listen to explanations
+- ✅ **Copy to Clipboard** - Easy sharing
+- ✅ **Example Topics** - Quick start examples
+- ✅ **Modern UI** - Beautiful Tailwind design
+
+---
+
+## 📚 **API Endpoints**
+
+### **POST /api/simplify**
+```json
+{
+  "text": "Explain quantum mechanics",
+  "level": "ELI5",
+  "use_wiki": true,
+  "topic": "quantum"
+}
+```
+
+### **GET /api/wiki/{topic}**
+Get Wikipedia summary
+
+### **GET /api/health**
+Health check
+
+---
+
+## 🛠️ **Tech Stack**
+
+**Backend:** FastAPI, Google GenAI, HTTPX, Pydantic  
+**Frontend:** Next.js 14, TypeScript, Tailwind CSS, React Hook Form
+
+---
+
+## 🎨 **Complexity Levels**
+
+| Level | Target | Style |
+|-------|--------|-------|
+| **ELI5** 🧸 | Age 5 | Super simple |
+| **ELI15** 🎓 | Age 15 | Teen-friendly |
+| **Normal** 📚 | Adult | Full detail |
+
+---
+
+## 🐛 **Troubleshooting**
+
+**"GEMINI_API_KEY required"**
+- Check `backend\.env` has your API key
+
+**"Network error"**
+- Ensure backend runs on port 8000
+- Visit `http://localhost:8000/api/health`
+
+**Port in use**
+- Backend: Stop processes on port 8000
+- Frontend: Stop processes on port 3000
+
+---
+
+## 📦 **Deployment**
+
+**Backend:** Heroku, Railway, Google Cloud Run  
+**Frontend:** Vercel, Netlify
+
+---
+
+## 💡 **Usage Tips**
+
+- Use Wikipedia topics for best results (e.g., "photosynthesis")
+- Try all complexity levels to compare
+- Text-to-speech works best on Chrome/Edge
+- Reading time: ~200 words/minute
+
+---
+
+## 🎉 **You're Ready!**
+
+Run `.\start-dev.ps1` and start making complex topics easy! 🚀
