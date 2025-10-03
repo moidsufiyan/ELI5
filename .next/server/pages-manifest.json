@@ -3,7 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/simplify": "pages/api/simplify.js",
-  "/api/simplify-stream": "pages/api/simplify-stream.js",
   "/simplify": "pages/simplify.js"
 }
