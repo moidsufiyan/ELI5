@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowRight, Brain, Sparkles, Target, BookOpen } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { motion } from 'framer-motion'
 
 export default function Home() {
   return (
@@ -22,7 +23,12 @@ export default function Home() {
         <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/30 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
           <div className="container mx-auto px-6 py-20">
             {/* Hero Section - Focused and Simple */}
-            <div className="text-center max-w-4xl mx-auto mb-20">
+            <motion.div
+              className="text-center max-w-4xl mx-auto mb-20"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
               {/* Logo */}
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl mb-6 shadow-lg animate-fade-in">
                 <Brain className="w-10 h-10 text-white" />
@@ -42,42 +48,67 @@ export default function Home() {
               
               {/* Single Primary CTA */}
               <Link href="/simplify">
-                <button className="group inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-200 animate-fade-in">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-primary-800 transform transition-all duration-200 animate-fade-in"
+                >
                   <Sparkles className="w-5 h-5 mr-2" />
                   Try It Now
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </motion.button>
               </Link>
-            </div>
+            </motion.div>
 
             {/* Essential Features - Only 3 Core Benefits */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-20">
               {/* Feature 1: AI-Powered */}
-              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up">
+              <motion.div
+                className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.4, delay: 0.05 }}
+                whileHover={{ y: -3 }}
+              >
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6">
                   <Brain className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">AI-Powered Simplification</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">Advanced Google Gemini AI intelligently transforms complex text into clear, understandable explanations</p>
-              </div>
+              </motion.div>
               
               {/* Feature 2: Multiple Complexity Levels */}
-              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up" style={{ animationDelay: '100ms' }}>
+              <motion.div
+                className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
+                whileHover={{ y: -3 }}
+              >
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6">
                   <Target className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">Three Complexity Levels</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">Choose from Simple, General, or Professional explanations tailored to your audience and needs</p>
-              </div>
+              </motion.div>
               
               {/* Feature 3: Wikipedia Context */}
-              <div className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up" style={{ animationDelay: '200ms' }}>
+              <motion.div
+                className="bg-white dark:bg-neutral-800 rounded-2xl p-8 border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.4, delay: 0.25 }}
+                whileHover={{ y: -3 }}
+              >
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6">
                   <BookOpen className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">Optional Wikipedia Context</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">Enhance explanations with additional context from Wikipedia for richer understanding</p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </main>

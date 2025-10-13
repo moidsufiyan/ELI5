@@ -37,6 +37,10 @@ interface AppState {
   // Current processing state
   isProcessing: boolean
   setIsProcessing: (isProcessing: boolean) => void
+
+  // Shared draft text across pages/components
+  draftText: string
+  setDraftText: (text: string) => void
 }
 
 // Create store with persistence
@@ -81,12 +85,17 @@ export const useAppStore = create<AppState>()(
       // Processing state (not persisted)
       isProcessing: false,
       setIsProcessing: (isProcessing) => set({ isProcessing }),
+
+      // Draft text shared state
+      draftText: '',
+      setDraftText: (text: string) => set({ draftText: text }),
     }),
     {
       name: 'eli5-storage', // localStorage key
       partialize: (state) => ({
         preferences: state.preferences,
         history: state.history,
+        draftText: state.draftText,
       }),
     }
   )

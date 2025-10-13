@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2, Sparkles, Copy, CheckCircle, Send, RotateCcw } from 'lucide-react'
 import { complexityLevels, type ComplexityLevel, cn } from '@/lib/utils'
+import { useAppStore } from '@/lib/store'
 
 // Form schema
 const formSchema = z.object({
@@ -28,6 +29,13 @@ interface StreamChunk {
 }
 
 const SimplificationForm: React.FC = () => {
+  const {
+    preferences,
+    setIsProcessing,
+    addToHistory,
+    draftText,
+    setDraftText,
+  } = useAppStore()
   const [result, setResult] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
@@ -42,8 +50,8 @@ const SimplificationForm: React.FC = () => {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text: '',
-      complexity: 'ELI5'
+      text: draftText || '',
+      complexity: preferences.defaultComplexity,
     }
   })
 
@@ -65,6 +73,7 @@ const SimplificationForm: React.FC = () => {
     setResult('')
     setStreamingText('')
     setWikiInfo({ used_wiki: false })
+    setIsProcessing(true)
 
     try {
       const response = await fetch('/api/simplify-stream', {
@@ -75,7 +84,7 @@ const SimplificationForm: React.FC = () => {
         body: JSON.stringify({
           text: data.text,
           level: data.complexity,
-          use_wiki: true,
+          use_wiki: preferences.enableWikipedia,
           topic: data.text.split(' ').slice(0, 3).join(' '),
         }),
       })
@@ -130,6 +139,16 @@ const SimplificationForm: React.FC = () => {
                       const words = chunk.final_text.split(/\s+/).length
                       setWordCount(words)
                       setReadingTime(Math.ceil(words / 200))
+
+                      // Save to history
+                      addToHistory({
+                        originalText: data.text,
+                        simplifiedText: chunk.final_text,
+                        complexity: data.complexity,
+                        wordCount: words,
+                        usedWiki: wikiInfo.used_wiki,
+                        wikiTitle: wikiInfo.wiki_title,
+                      })
                     }
                     break
                     
@@ -150,10 +169,12 @@ const SimplificationForm: React.FC = () => {
     } finally {
       setIsLoading(false)
       setIsStreaming(false)
+      setIsProcessing(false)
     }
   }
 
   const onSubmit = async (data: FormData) => {
+    setIsProcessing(true)
     if (data.complexity === 'normal') {
       // Use streaming for normal (adult) explanations
       await handleStreamingResponse(data)
@@ -173,7 +194,7 @@ const SimplificationForm: React.FC = () => {
           body: JSON.stringify({
             text: data.text,
             level: data.complexity,
-            use_wiki: true,
+            use_wiki: preferences.enableWikipedia,
             topic: data.text.split(' ').slice(0, 3).join(' '),
           }),
         })
@@ -189,6 +210,16 @@ const SimplificationForm: React.FC = () => {
           const words = result.simplified_text.split(/\s+/).length
           setWordCount(words)
           setReadingTime(Math.ceil(words / 200))
+
+          // Save to history
+          addToHistory({
+            originalText: data.text,
+            simplifiedText: result.simplified_text,
+            complexity: data.complexity,
+            wordCount: words,
+            usedWiki: !!result.used_wiki,
+            wikiTitle: result.wiki_title,
+          })
         } else {
           setError(result.detail || result.error || 'Failed to simplify text')
         }
@@ -196,6 +227,7 @@ const SimplificationForm: React.FC = () => {
         setError('Failed to generate explanation. Please check your internet connection and try again.')
       } finally {
         setIsLoading(false)
+        setIsProcessing(false)
       }
     }
   }
@@ -221,10 +253,12 @@ const SimplificationForm: React.FC = () => {
     setReadingTime(0)
     setWikiInfo({ used_wiki: false })
     setValue('text', '')
+    setDraftText('')
   }
 
   const loadExample = (exampleText: string) => {
     setValue('text', exampleText)
+    setDraftText(exampleText)
     setResult('')
     setStreamingText('')
     setError('')
@@ -256,7 +290,9 @@ const SimplificationForm: React.FC = () => {
             </label>
             <textarea
               id="text"
-              {...register('text')}
+              {...register('text', {
+                onChange: (e) => setDraftText(e.target.value),
+              })}
               rows={6}
               className="w-full px-6 py-4 text-lg border-2 border-neutral-200 dark:border-neutral-700 rounded-2xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none bg-neutral-50 dark:bg-neutral-900 hover:bg-white dark:hover:bg-neutral-800 focus:bg-white dark:focus:bg-neutral-800 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 text-neutral-900 dark:text-neutral-100"
               placeholder="Enter complex text here... For example: 'Explain quantum mechanics', 'How does machine learning work?', or paste a scientific article"
