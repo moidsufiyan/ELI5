@@ -1,5 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
+import { SEO } from '@/components/SEO'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -8,6 +9,18 @@ import { Brain, Target, BookOpen, Sparkles } from 'lucide-react'
 export default function About() {
   return (
     <>
+      <SEO
+        title="About - ELI5 AI Simplifier"
+        description="Learn about ELI5 AI Simplifier - a professional text simplification tool powered by AI"
+        type="article"
+        canonical={typeof window !== 'undefined' ? window.location.origin + '/about' : undefined}
+        image="/og.png"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'AboutPage',
+          name: 'About - ELI5 AI Simplifier'
+        }}
+      />
       <Head>
         <title>About - ELI5 AI Simplifier</title>
         <meta name="description" content="Learn about ELI5 AI Simplifier - a professional text simplification tool powered by AI" />

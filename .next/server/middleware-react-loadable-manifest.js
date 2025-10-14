@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"pages\\\\simplify.tsx -> @/components/ResultPanel\":{\"id\":\"pages\\\\simplify.tsx -> @/components/ResultPanel\",\"files\":[\"static/chunks/src_components_ResultPanel_tsx.js\"]}}"

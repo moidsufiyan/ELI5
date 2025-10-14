@@ -1,5 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
+import { SEO } from '@/components/SEO'
 import Link from 'next/link'
 import { ArrowRight, Brain, Sparkles, Target, BookOpen } from 'lucide-react'
 import { Header } from '@/components/Header'
@@ -9,6 +10,19 @@ import { motion } from 'framer-motion'
 export default function Home() {
   return (
     <>
+      <SEO
+        title="ELI5 AI Simplifier - Professional Text Simplification"
+        description="Transform complex information into accessible, clear communication through AI-powered simplification."
+        type="website"
+        canonical={typeof window !== 'undefined' ? window.location.origin + '/' : undefined}
+        image="/og.png"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'ELI5 AI Simplifier',
+          url: typeof window !== 'undefined' ? window.location.origin : undefined
+        }}
+      />
       <Head>
         <title>ELI5 AI Simplifier - Professional Text Simplification</title>
         <meta name="description" content="Transform complex information into accessible, clear communication through AI-powered simplification. Professional text simplification for everyone." />

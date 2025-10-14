@@ -9,6 +9,7 @@ from google import genai
 import httpx
 import re
 from dotenv import load_dotenv
+from urllib.parse import quote
 
 # Load environment variables
 load_dotenv()
@@ -26,10 +27,7 @@ app.add_middleware(
 
 # Initialize Gemini client
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is required")
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 class TextRequest(BaseModel):
     text: str
@@ -51,18 +49,44 @@ async def get_wikipedia_summary(topic: str):
         return None
     
     try:
-        url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{topic}"
-        async with httpx.AsyncClient() as client_http:
+        safe_topic = quote(topic.strip().replace(' ', '_'))
+        url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{safe_topic}"
+        async with httpx.AsyncClient(timeout=10.0) as client_http:
             response = await client_http.get(url)
             if response.status_code == 200:
                 data = response.json()
                 return {
                     "title": data.get("title"),
-                    "summary": data.get("extract", "")[:500]
+                    "summary": (data.get("extract", "") or "")[:500]
                 }
     except Exception as e:
         print(f"Wikipedia error: {e}")
     return None
+
+async def generate_with_gemini(prompt: str) -> str:
+    """Safely call Gemini and return plain text or raise HTTPException."""
+    if not GEMINI_API_KEY or client is None:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured on server")
+    try:
+        # Run blocking SDK in a thread to avoid blocking the event loop
+        def _call():
+            return client.models.generate_content(model="gemini-2.0-flash-exp", contents=prompt)
+        response = await asyncio.to_thread(_call)
+        text = getattr(response, 'text', None)
+        if not text:
+            # Some SDKs return candidates; fallback to best-effort
+            try:
+                candidates = getattr(response, 'candidates', [])
+                text = candidates[0].get('content', {}).get('parts', [{}])[0].get('text') if candidates else None
+            except Exception:
+                text = None
+        if not text:
+            raise HTTPException(status_code=502, detail="Gemini returned empty response")
+        return text
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Gemini error: {str(e)}")
 
 @app.post("/api/simplify")
 async def simplify_text(request: TextRequest):
@@ -100,12 +124,8 @@ Write in plain text without markdown formatting.
         else:
             prompt = f"{level_instruction}: {request.text}. Write in plain text without markdown formatting."
         
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp", 
-            contents=prompt
-        )
-        
-        cleaned_text = clean_text(response.text)
+        text = await generate_with_gemini(prompt)
+        cleaned_text = clean_text(text)
         
         return {
             "simplified_text": cleaned_text,
@@ -157,12 +177,8 @@ Write in plain text without markdown formatting.
         
         async def generate_stream():
             try:
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash-exp", 
-                    contents=prompt
-                )
-                
-                cleaned_text = clean_text(response.text)
+                text = await generate_with_gemini(prompt)
+                cleaned_text = clean_text(text)
                 
                 # Split text into words and stream them
                 words = cleaned_text.split()
@@ -210,11 +226,10 @@ Write in plain text without markdown formatting.
         
         return StreamingResponse(
             generate_stream(),
-            media_type="text/plain",
+            media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/event-stream"
+                "Connection": "keep-alive"
             }
         )
         
