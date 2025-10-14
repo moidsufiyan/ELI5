@@ -193,8 +193,8 @@ const SimplificationForm: React.FC = () => {
           },
           body: JSON.stringify({
             text: data.text,
-            level: data.complexity,
-            use_wiki: preferences.enableWikipedia,
+            complexity: data.complexity,
+            useWikipedia: preferences.enableWikipedia,
             topic: data.text.split(' ').slice(0, 3).join(' '),
           }),
         })
