@@ -36,31 +36,31 @@ export default function Home() {
 
         <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/20 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
           <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
-            {/* Hero Section - Focused and Simple */}
+            {}
             <motion.div
               className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              {/* Logo */}
+              {}
               <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl mb-4 sm:mb-6 shadow-large animate-fade-in">
                 <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
               
-              {/* Main Headline */}
+              {}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-neutral-900 dark:text-neutral-100 animate-fade-in leading-tight">
                 <span className="gradient-text">
                   ELI5 AI Simplifier
                 </span>
               </h1>
               
-              {/* Subtitle - Clear Value Proposition */}
+              {}
               <p className="text-lg sm:text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 mb-6 sm:mb-8 leading-relaxed animate-fade-in max-w-3xl mx-auto">
                 Transform complex information into accessible, clear communication
               </p>
               
-              {/* Single Primary CTA */}
+              {}
               <Link href="/simplify">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -74,11 +74,11 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Essential Features - Only 3 Core Benefits */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto mb-16 sm:mb-20">
-              {/* Feature 1: AI-Powered */}
+              {}
               <motion.div
-                className="card-elevated p-6 sm:p-8 animate-slide-up"
+                className="glass-card p-6 sm:p-8 animate-slide-up"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -89,12 +89,12 @@ export default function Home() {
                   <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-3">AI-Powered Simplification</h3>
-                <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">Advanced Google Gemini AI intelligently transforms complex text into clear, understandable explanations</p>
+                <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">Advanced OpenAI GPT intelligently transforms complex text into clear, understandable explanations</p>
               </motion.div>
               
-              {/* Feature 2: Multiple Complexity Levels */}
+              {}
               <motion.div
-                className="card-elevated p-6 sm:p-8 animate-slide-up"
+                className="glass-card p-6 sm:p-8 animate-slide-up"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -108,9 +108,9 @@ export default function Home() {
                 <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">Choose from Simple, General, or Professional explanations tailored to your audience and needs</p>
               </motion.div>
               
-              {/* Feature 3: Wikipedia Context */}
+              {}
               <motion.div
-                className="card-elevated p-6 sm:p-8 animate-slide-up"
+                className="glass-card p-6 sm:p-8 animate-slide-up"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
