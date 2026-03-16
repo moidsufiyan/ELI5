@@ -7,26 +7,13 @@ import { z } from 'zod'
 import { Loader2, Sparkles, Send, RotateCcw, History, ToggleLeft, ToggleRight } from 'lucide-react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import dynamic from 'next/dynamic'
-const ResultPanel = dynamic(() => import('@/components/ResultPanel').then(m => m.ResultPanel), {
-  ssr: true,
-  loading: () => (
-    <div className="card-floating p-6">
-      <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4 animate-pulse" />
-      <div className="space-y-2">
-        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
-        <div className="h-4 w-11/12 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
-        <div className="h-4 w-10/12 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
-      </div>
-    </div>
-  )
-})
+import { ResultPanel } from '@/components/ResultPanel'
 import { motion } from 'framer-motion'
 import { useAppStore } from '@/lib/store'
 import { complexityLevels, type ComplexityLevel, cn, formatDate, truncateText } from '@/lib/utils'
 import { Toast } from '@/components/ui/StatusMessage'
 
-// Form schema
+
 const formSchema = z.object({
   text: z.string().min(10, 'Text must be at least 10 characters').max(5000, 'Text is too long'),
   complexity: z.enum(['ELI5', 'ELI15', 'normal'])
@@ -34,7 +21,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-// Streaming response interfaces
+
 interface StreamChunk {
   type: 'metadata' | 'content' | 'complete' | 'error'
   word?: string
@@ -58,7 +45,7 @@ export default function SimplifyPage() {
     history,
   } = useAppStore()
 
-  // Form state
+  
   const [result, setResult] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
@@ -70,6 +57,20 @@ export default function SimplifyPage() {
   const [processingTime, setProcessingTime] = useState<number>(0)
   const [streamingText, setStreamingText] = useState<string>('')
   const [wikiInfo, setWikiInfo] = useState<{ used_wiki: boolean, wiki_title?: string }>({ used_wiki: false })
+  const [dbHistory, setDbHistory] = useState<any[]>([])
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const res = await fetch('/api/history')
+        const data = await res.json()
+        if (Array.isArray(data)) setDbHistory(data)
+      } catch (err) {
+        console.error('History fetch error:', err)
+      }
+    }
+    loadHistory()
+  }, [result])
   const [useWikipedia, setUseWikipedia] = useState(preferences.enableWikipedia)
   const resultRef = useRef<HTMLDivElement>(null)
   const startTime = useRef<number>(0)
@@ -86,7 +87,7 @@ export default function SimplifyPage() {
   const textValue = watch('text')
   const selectedLevel = complexityLevels.find(level => level.value === selectedComplexity)
 
-  // Auto-scroll to bottom during streaming
+  
   useEffect(() => {
     if (resultRef.current && isStreaming) {
       resultRef.current.scrollTop = resultRef.current.scrollHeight
@@ -137,7 +138,7 @@ export default function SimplifyPage() {
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
         
-        // Keep the last incomplete line in the buffer
+        
         buffer = lines.pop() || ''
         
         for (const line of lines) {
@@ -168,7 +169,7 @@ export default function SimplifyPage() {
                       setWordCount(words)
                       setProcessingTime(Math.round((Date.now() - startTime.current) / 1000))
 
-                      // Save to history
+                      
                       addToHistory({
                         originalText: data.text,
                         simplifiedText: chunk.final_text,
@@ -181,7 +182,12 @@ export default function SimplifyPage() {
                     break
                     
                   case 'error':
-                    setError(chunk.error || 'An error occurred')
+                    const errMsg = chunk.error || 'An error occurred'
+                    if (errMsg.includes('RESOURCE_EXHAUSTED') || errMsg.includes('quota')) {
+                      setError('API quota exhausted. Please try a non-streaming mode or try again later.')
+                    } else {
+                      setError(errMsg.length < 200 ? errMsg : 'An error occurred during streaming.')
+                    }
                     break
                 }
               }
@@ -206,10 +212,10 @@ export default function SimplifyPage() {
     setIsProcessing(true)
     
     if (data.complexity === 'normal') {
-      // Use streaming for normal (adult) explanations
+      
       await handleStreamingResponse(data)
     } else {
-      // Use regular API for ELI5 and ELI15
+      
       setIsLoading(true)
       setError('')
       setResult('')
@@ -242,7 +248,12 @@ export default function SimplifyPage() {
           setWordCount(words)
           setProcessingTime(Math.round((Date.now() - startTime.current) / 1000))
 
-          // Save to history
+          
+          if (result.demo_mode) {
+            setToast({ type: 'info', message: 'Using demo mode — set a valid API key for AI-powered results' })
+          }
+
+          
           addToHistory({
             originalText: data.text,
             simplifiedText: result.simplified_text,
@@ -252,10 +263,29 @@ export default function SimplifyPage() {
             wikiTitle: result.wiki_title,
           })
         } else {
-          setError(result.detail || result.error || 'Failed to simplify text')
+          
+          const rawError = result.detail || result.message || result.error || ''
+          let friendlyError = 'Failed to simplify text. Please try again.'
+          if (typeof rawError === 'string') {
+            if (rawError.includes('RESOURCE_EXHAUSTED') || rawError.includes('quota')) {
+              friendlyError = 'API quota exhausted. The service will use demo mode on your next request.'
+            } else if (rawError.includes('timeout') || rawError.includes('took too long')) {
+              friendlyError = 'Request timed out. Please try again with shorter text.'
+            } else if (rawError.includes('backend') || rawError.includes('connect')) {
+              friendlyError = 'Cannot reach the backend server. Make sure the Python backend is running on port 8000.'
+            } else if (rawError.length > 0 && rawError.length < 200) {
+              friendlyError = rawError
+            }
+          }
+          setError(friendlyError)
         }
       } catch (err) {
-        setError('Failed to generate explanation. Please check your internet connection and try again.')
+        const msg = err instanceof Error ? err.message : ''
+        if (msg.includes('fetch') || msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
+          setError('Cannot connect to the server. Make sure the backend is running and try again.')
+        } else {
+          setError('Failed to generate explanation. Please check your internet connection and try again.')
+        }
       } finally {
         setIsLoading(false)
         setIsProcessing(false)
@@ -278,7 +308,7 @@ export default function SimplifyPage() {
     }
   }
 
-  // Keyboard shortcuts: Ctrl+Enter to submit, Ctrl+C to copy result
+  
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toLowerCase().includes('mac')
@@ -287,16 +317,11 @@ export default function SimplifyPage() {
         e.preventDefault()
         handleSubmit(onSubmit)()
       }
-      if (ctrlOrCmd && e.key.toLowerCase() === 'c') {
-        if (result || streamingText) {
-          e.preventDefault()
-          handleCopy()
-        }
-      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [result, streamingText])
+    
+  }, [handleSubmit])
 
   const handleExport = () => {
     const textToExport = result || streamingText
@@ -331,7 +356,7 @@ export default function SimplifyPage() {
   }
 
   const handleTryDifferentLevel = () => {
-    // Reset result but keep the text
+    
     setResult('')
     setStreamingText('')
     setError('')
@@ -399,12 +424,12 @@ export default function SimplifyPage() {
             />
           )}
           <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-            {/* Two-Column Grid Layout */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
+            {}
+            <div className="max-w-4xl mx-auto space-y-8">
               
-              {/* Left Column: Input Form */}
+              {}
               <div className="space-y-6">
-                {/* Main Form Card */}
+                {}
                 <motion.div
                   className="card-floating p-6 sm:p-8"
                   initial={{ opacity: 0, y: 12 }}
@@ -412,7 +437,7 @@ export default function SimplifyPage() {
                   transition={{ duration: 0.22 }}
                 >
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
-                    {/* Header */}
+                    {}
                     <div className="text-center mb-6 sm:mb-8">
                       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text mb-2 sm:mb-3">
                         Transform Complex Ideas
@@ -420,7 +445,7 @@ export default function SimplifyPage() {
                       <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400">Enter any complex text and get a clear, understandable explanation</p>
                     </div>
 
-                    {/* Text Input */}
+                    {}
                     <div className="form-group">
                       <label htmlFor="text" className="form-label">
                         What would you like to understand? ✨
@@ -454,7 +479,7 @@ export default function SimplifyPage() {
                       </div>
                     </div>
 
-                    {/* Complexity Level Selection */}
+                    {}
                     <div className="form-group">
                       <label className="form-label">
                         Choose your explanation level 🎯
@@ -493,7 +518,7 @@ export default function SimplifyPage() {
                       </div>
                     </div>
 
-                    {/* Wikipedia Toggle */}
+                    {}
                     <div className="form-group">
                       <label className="form-label">
                         Wikipedia Enhancement 📚
@@ -524,7 +549,7 @@ export default function SimplifyPage() {
                       </div>
                     </div>
 
-                    {/* Submit Button */}
+                    {}
                     <div className="text-center pt-2 sm:pt-4">
                       <motion.button
                         type="submit"
@@ -558,7 +583,7 @@ export default function SimplifyPage() {
                   </form>
                 </motion.div>
 
-                {/* Examples Section */}
+                {}
                 {!result && !streamingText && !isLoading && (
                   <motion.div
                     className="card-floating p-4 sm:p-6"
@@ -591,7 +616,7 @@ export default function SimplifyPage() {
                 )}
               </div>
 
-              {/* Right Column: Results Panel */}
+              {}
               <div className="space-y-6">
                 <ResultPanel
                   result={result}
@@ -612,7 +637,7 @@ export default function SimplifyPage() {
                   copied={copied}
                 />
 
-                {/* Recent History */}
+                {}
                 <div className="card-floating p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <div className="flex items-center gap-2">
@@ -623,37 +648,43 @@ export default function SimplifyPage() {
                       <span className="text-xs text-neutral-500">{history.length} items</span>
                     )}
                   </div>
-
-                    {history.length === 0 ? (
+                        {dbHistory.length === 0 && history.length === 0 ? (
                     <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">No recent items yet. Run a simplification to see it here.</p>
                   ) : (
                     <ul className="space-y-2 sm:space-y-3 max-h-48 sm:max-h-64 overflow-y-auto">
-                      {history.slice(0, 5).map((item) => (
-                        <li key={item.id} className="group border border-neutral-200 dark:border-neutral-700 rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow">
-                          <button
-                            className="w-full text-left min-h-[44px] touch-manipulation"
-                            onClick={() => setDraftText(item.originalText)}
-                            title="Load text into editor"
-                          >
-                            <div className="flex items-start justify-between gap-2 sm:gap-3">
-                              <div className="flex-1">
-                                <div className="text-xs sm:text-sm text-neutral-500 mb-1">{formatDate(item.timestamp)} • {item.complexity}</div>
-                                <div className="text-neutral-800 dark:text-neutral-200 text-xs sm:text-sm leading-relaxed">{truncateText(item.originalText, 100)}</div>
+                      {(dbHistory.length > 0 ? dbHistory : history).slice(0, 10).map((item) => {
+                        const isDb = !!item._id;
+                        const original = isDb ? item.original_text : item.originalText;
+                        const simplified = isDb ? item.simplified_text : item.simplifiedText;
+                        const complexity = isDb ? item.level : item.complexity;
+
+                        return (
+                          <li key={item._id || item.id} className="group border border-neutral-200 dark:border-neutral-700 rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow">
+                            <button
+                              className="w-full text-left min-h-[44px] touch-manipulation"
+                              onClick={() => setDraftText(original)}
+                              title="Load text into editor"
+                            >
+                              <div className="flex items-start justify-between gap-2 sm:gap-3">
+                                <div className="flex-1">
+                                  <div className="text-xs sm:text-sm text-neutral-500 mb-1">{formatDate(item.timestamp)} • {complexity}</div>
+                                  <div className="text-neutral-800 dark:text-neutral-200 text-xs sm:text-sm leading-relaxed">{truncateText(original || '', 100)}</div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); setValue('text', original); setDraftText(original); setResult(simplified); setStreamingText(''); setError(''); }}
+                                    className="text-primary-600 dark:text-primary-400 hover:underline text-xs"
+                                    title="Quick load"
+                                  >
+                                    Load
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); setValue('text', item.originalText); setDraftText(item.originalText); setResult(item.simplifiedText); setStreamingText(''); setError(''); }}
-                                  className="text-primary-600 dark:text-primary-400 hover:underline text-xs"
-                                  title="Quick load"
-                                >
-                                  Load
-                                </button>
-                              </div>
-                            </div>
-                          </button>
-                        </li>
-                      ))}
+                            </button>
+                          </li>
+                        )
+                      })}
                     </ul>
                   )}
                 </div>
