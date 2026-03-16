@@ -6,7 +6,7 @@ import { Loader2, Sparkles, Copy, CheckCircle, Send, RotateCcw } from 'lucide-re
 import { complexityLevels, type ComplexityLevel, cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 
-// Form schema
+
 const formSchema = z.object({
   text: z.string().min(10, 'Text must be at least 10 characters').max(5000, 'Text is too long'),
   complexity: z.enum(['ELI5', 'ELI15', 'normal'])
@@ -14,7 +14,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-// Streaming response interfaces
+
 interface StreamChunk {
   type: 'metadata' | 'content' | 'complete' | 'error'
   word?: string
@@ -59,7 +59,7 @@ const SimplificationForm: React.FC = () => {
   const textValue = watch('text')
   const selectedLevel = complexityLevels.find(level => level.value === selectedComplexity)
 
-  // Auto-scroll to bottom during streaming
+  
   useEffect(() => {
     if (resultRef.current && isStreaming) {
       resultRef.current.scrollTop = resultRef.current.scrollHeight
@@ -109,7 +109,7 @@ const SimplificationForm: React.FC = () => {
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
         
-        // Keep the last incomplete line in the buffer
+        
         buffer = lines.pop() || ''
         
         for (const line of lines) {
@@ -140,7 +140,7 @@ const SimplificationForm: React.FC = () => {
                       setWordCount(words)
                       setReadingTime(Math.ceil(words / 200))
 
-                      // Save to history
+                      
                       addToHistory({
                         originalText: data.text,
                         simplifiedText: chunk.final_text,
@@ -176,10 +176,10 @@ const SimplificationForm: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     setIsProcessing(true)
     if (data.complexity === 'normal') {
-      // Use streaming for normal (adult) explanations
+      
       await handleStreamingResponse(data)
     } else {
-      // Use regular API for ELI5 and ELI15
+      
       setIsLoading(true)
       setError('')
       setResult('')
@@ -211,7 +211,7 @@ const SimplificationForm: React.FC = () => {
           setWordCount(words)
           setReadingTime(Math.ceil(words / 200))
 
-          // Save to history
+          
           addToHistory({
             originalText: data.text,
             simplifiedText: result.simplified_text,
@@ -272,10 +272,10 @@ const SimplificationForm: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Main Form Card */}
+      {}
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200 p-8 mb-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Header */}
+          {}
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
               Transform Complex Ideas
@@ -283,7 +283,7 @@ const SimplificationForm: React.FC = () => {
             <p className="text-slate-600">Enter any complex text and get a clear, understandable explanation</p>
           </div>
 
-          {/* Text Input */}
+          {}
           <div className="space-y-3">
             <label htmlFor="text" className="block text-lg font-semibold text-neutral-900 dark:text-neutral-100">
               What would you like to understand? ✨
@@ -315,7 +315,7 @@ const SimplificationForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Complexity Level Selection */}
+          {}
           <div className="space-y-4">
             <label className="block text-lg font-semibold text-neutral-900 dark:text-neutral-100">
               Choose your explanation level 🎯
@@ -357,7 +357,7 @@ const SimplificationForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {}
           <div className="text-center pt-4">
             <button
               type="submit"
@@ -386,7 +386,7 @@ const SimplificationForm: React.FC = () => {
         </form>
       </div>
 
-      {/* Error Display */}
+      {}
       {error && (
         <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-8 animate-slide-up">
           <div className="flex items-start">
@@ -399,7 +399,7 @@ const SimplificationForm: React.FC = () => {
         </div>
       )}
 
-      {/* Results Display */}
+      {}
       {(result || streamingText || isStreaming) && (
         <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-2xl p-8 animate-slide-up">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
@@ -470,7 +470,7 @@ const SimplificationForm: React.FC = () => {
         </div>
       )}
 
-      {/* Examples Section */}
+      {}
       {!result && !streamingText && !isLoading && (
         <div className="text-center mt-12">
           <h3 className="text-2xl font-bold text-slate-800 mb-6">

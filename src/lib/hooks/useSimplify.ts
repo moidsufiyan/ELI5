@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useAppStore, type ComplexityLevel } from '../store'
 
-// API Response types
+
 interface SimplifyResponse {
   simplified_text: string
   used_wiki: boolean
@@ -21,7 +21,7 @@ interface ApiError {
   detail?: string
 }
 
-// Hook state interface
+
 interface UseSimplifyState {
   isLoading: boolean
   error: string | null
@@ -30,16 +30,16 @@ interface UseSimplifyState {
   isRetrying: boolean
 }
 
-// Hook return interface
+
 interface UseSimplifyReturn {
-  // State
+  
   isLoading: boolean
   error: string | null
   result: SimplifyResponse | null
   retryCount: number
   isRetrying: boolean
   
-  // Actions
+  
   simplify: (params: SimplifyParams) => Promise<void>
   retry: () => Promise<void>
   clearError: () => void
@@ -47,7 +47,7 @@ interface UseSimplifyReturn {
   reset: () => void
 }
 
-// Request parameters
+
 interface SimplifyParams {
   text: string
   complexity: ComplexityLevel
@@ -55,10 +55,10 @@ interface SimplifyParams {
   topic: string
 }
 
-// Configuration
+
 const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // 1 second
-const TIMEOUT_DURATION = 30000 // 30 seconds
+const RETRY_DELAY = 1000 
+const TIMEOUT_DURATION = 30000 
 
 export function useSimplify(): UseSimplifyReturn {
   const [state, setState] = useState<UseSimplifyState>({
@@ -71,17 +71,17 @@ export function useSimplify(): UseSimplifyReturn {
 
   const { setIsProcessing, addToHistory } = useAppStore()
 
-  // Clear error
+  
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }))
   }, [])
 
-  // Clear result
+  
   const clearResult = useCallback(() => {
     setState(prev => ({ ...prev, result: null }))
   }, [])
 
-  // Reset all state
+  
   const reset = useCallback(() => {
     setState({
       isLoading: false,
@@ -92,10 +92,10 @@ export function useSimplify(): UseSimplifyReturn {
     })
   }, [])
 
-  // Sleep utility for retry delays
+  
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-  // Make API request with timeout
+  
   const makeRequest = async (params: SimplifyParams): Promise<SimplifyResponse> => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION)
@@ -138,9 +138,9 @@ export function useSimplify(): UseSimplifyReturn {
     }
   }
 
-  // Main simplify function
+  
   const simplify = useCallback(async (params: SimplifyParams) => {
-    // Validate input
+    
     if (!params.text?.trim()) {
       setState(prev => ({
         ...prev,
@@ -159,7 +159,7 @@ export function useSimplify(): UseSimplifyReturn {
       return
     }
 
-    // Reset state and start loading
+    
     setState(prev => ({
       ...prev,
       isLoading: true,
@@ -183,7 +183,7 @@ export function useSimplify(): UseSimplifyReturn {
         isRetrying: false
       }))
 
-      // Add to history
+      
       addToHistory({
         originalText: params.text,
         simplifiedText: result.simplified_text,
@@ -209,7 +209,7 @@ export function useSimplify(): UseSimplifyReturn {
     }
   }, [setIsProcessing, addToHistory])
 
-  // Retry function
+  
   const retry = useCallback(async () => {
     if (!state.error || state.retryCount >= MAX_RETRIES) {
       return
@@ -222,12 +222,12 @@ export function useSimplify(): UseSimplifyReturn {
       retryCount: prev.retryCount + 1
     }))
 
-    // Wait before retrying
+    
     await sleep(RETRY_DELAY * state.retryCount)
 
     try {
-      // We need to store the last params to retry
-      // This is a limitation - in a real app, you'd want to store the last params
+      
+      
       setState(prev => ({
         ...prev,
         isRetrying: false,
@@ -245,14 +245,14 @@ export function useSimplify(): UseSimplifyReturn {
   }, [state.error, state.retryCount])
 
   return {
-    // State
+    
     isLoading: state.isLoading,
     error: state.error,
     result: state.result,
     retryCount: state.retryCount,
     isRetrying: state.isRetrying,
     
-    // Actions
+    
     simplify,
     retry,
     clearError,
@@ -261,7 +261,7 @@ export function useSimplify(): UseSimplifyReturn {
   }
 }
 
-// Enhanced version with retry capability that stores last params
+
 export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: SimplifyParams | null } {
   const [lastParams, setLastParams] = useState<SimplifyParams | null>(null)
   const [state, setState] = useState<UseSimplifyState>({
@@ -274,17 +274,17 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
 
   const { setIsProcessing, addToHistory } = useAppStore()
 
-  // Clear error
+  
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }))
   }, [])
 
-  // Clear result
+  
   const clearResult = useCallback(() => {
     setState(prev => ({ ...prev, result: null }))
   }, [])
 
-  // Reset all state
+  
   const reset = useCallback(() => {
     setState({
       isLoading: false,
@@ -296,10 +296,10 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
     setLastParams(null)
   }, [])
 
-  // Sleep utility for retry delays
+  
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-  // Make API request with timeout
+  
   const makeRequest = async (params: SimplifyParams): Promise<SimplifyResponse> => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION)
@@ -342,9 +342,9 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
     }
   }
 
-  // Main simplify function
+  
   const simplify = useCallback(async (params: SimplifyParams) => {
-    // Validate input
+    
     if (!params.text?.trim()) {
       setState(prev => ({
         ...prev,
@@ -363,10 +363,10 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
       return
     }
 
-    // Store params for retry
+    
     setLastParams(params)
 
-    // Reset state and start loading
+    
     setState(prev => ({
       ...prev,
       isLoading: true,
@@ -390,7 +390,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
         isRetrying: false
       }))
 
-      // Add to history
+      
       addToHistory({
         originalText: params.text,
         simplifiedText: result.simplified_text,
@@ -416,7 +416,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
     }
   }, [setIsProcessing, addToHistory])
 
-  // Retry function
+  
   const retry = useCallback(async () => {
     if (!state.error || !lastParams || state.retryCount >= MAX_RETRIES) {
       return
@@ -429,7 +429,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
       retryCount: prev.retryCount + 1
     }))
 
-    // Wait before retrying with exponential backoff
+    
     await sleep(RETRY_DELAY * Math.pow(2, state.retryCount - 1))
 
     try {
@@ -443,7 +443,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
         retryCount: 0
       }))
 
-      // Add to history
+      
       addToHistory({
         originalText: lastParams.text,
         simplifiedText: result.simplified_text,
@@ -465,7 +465,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
   }, [state.error, state.retryCount, lastParams, addToHistory])
 
   return {
-    // State
+    
     isLoading: state.isLoading,
     error: state.error,
     result: state.result,
@@ -473,7 +473,7 @@ export function useSimplifyWithRetry(): UseSimplifyReturn & { lastParams: Simpli
     isRetrying: state.isRetrying,
     lastParams,
     
-    // Actions
+    
     simplify,
     retry,
     clearError,

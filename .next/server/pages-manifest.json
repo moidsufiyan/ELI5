@@ -1,8 +1,9 @@
 {
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/simplify": "pages/api/simplify.js",
+  "/_error": "pages/_error.js",
   "/": "pages/index.js",
-  "/simplify": "pages/simplify.js"
+  "/simplify": "pages/simplify.js",
+  "/api/history": "pages/api/history.js",
+  "/api/simplify": "pages/api/simplify.js"
 }

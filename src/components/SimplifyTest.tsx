@@ -131,7 +131,7 @@ export function SimplifyTest() {
         </form>
       </Card>
 
-      {/* Error Display */}
+      {}
       {error && (
         <Card className="p-6 border-red-200 bg-red-50">
           <div className="flex items-start justify-between">
@@ -156,7 +156,7 @@ export function SimplifyTest() {
         </Card>
       )}
 
-      {/* Result Display */}
+      {}
       {result && (
         <Card className="p-6 border-green-200 bg-green-50">
           <div className="flex items-start justify-between mb-4">
@@ -178,7 +178,7 @@ export function SimplifyTest() {
               </p>
             </div>
 
-            {/* Metrics */}
+            {}
             {result.metrics && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div className="text-center p-2 bg-white rounded border">
@@ -208,7 +208,7 @@ export function SimplifyTest() {
               </div>
             )}
 
-            {/* Wikipedia Info */}
+            {}
             {result.used_wiki && result.wiki_title && (
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p className="text-sm text-blue-800">
@@ -220,7 +220,7 @@ export function SimplifyTest() {
         </Card>
       )}
 
-      {/* Reset Button */}
+      {}
       <div className="text-center">
         <Button
           onClick={reset}

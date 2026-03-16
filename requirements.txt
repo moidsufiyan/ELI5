@@ -1,4 +1,0 @@
-# Python dependencies for Vercel serverless functions
-google-genai==0.2.2
-httpx==0.28.1
-python-dotenv==1.0.1

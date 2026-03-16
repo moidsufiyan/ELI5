@@ -58,7 +58,7 @@ export default function SettingsPage() {
         <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/30 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-3xl mx-auto">
-              {/* Header */}
+              {}
               <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl mb-4 shadow-lg">
                   <SettingsIcon className="w-8 h-8 text-white" />
@@ -71,7 +71,7 @@ export default function SettingsPage() {
                 </p>
               </div>
 
-              {/* Theme Settings */}
+              {}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle>Appearance</CardTitle>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
 
-              {/* Default Complexity Level */}
+              {}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle>Default Complexity Level</CardTitle>
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
 
-              {/* Wikipedia Integration */}
+              {}
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle>Wikipedia Integration</CardTitle>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons */}
+              {}
               <div className="flex items-center justify-between gap-4">
                 <Button variant="outline" onClick={handleReset} size="lg">
                   <RotateCcw className="w-5 h-5 mr-2" />

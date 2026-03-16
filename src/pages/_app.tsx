@@ -25,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
           >
             Skip to content
           </a>
-          {/* Register service worker */}
+          {}
           <Script id="sw-register" strategy="afterInteractive">
             {`
             if ('serviceWorker' in navigator) {

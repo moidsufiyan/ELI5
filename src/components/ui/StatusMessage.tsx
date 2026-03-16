@@ -111,7 +111,7 @@ export function StatusMessage({
   )
 }
 
-// Specialized error message with retry functionality
+
 interface ErrorMessageProps {
   title?: string
   message: string
@@ -152,7 +152,7 @@ export function ErrorMessage({
   )
 }
 
-// Success message with celebration
+
 interface SuccessMessageProps {
   title?: string
   message: string
@@ -186,7 +186,7 @@ export function SuccessMessage({
   )
 }
 
-// Warning message
+
 interface WarningMessageProps {
   title?: string
   message: string
@@ -220,7 +220,7 @@ export function WarningMessage({
   )
 }
 
-// Info message
+
 interface InfoMessageProps {
   title?: string
   message: string
@@ -254,7 +254,7 @@ export function InfoMessage({
   )
 }
 
-// Toast notification component
+
 interface ToastProps {
   type: 'success' | 'error' | 'warning' | 'info'
   message: string

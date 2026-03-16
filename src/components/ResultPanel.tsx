@@ -127,7 +127,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
   
   const selectedLevel = complexityLevels[selectedComplexity]
 
-  // Auto-scroll to bottom during streaming
+  
   useEffect(() => {
     if (resultRef.current && isStreaming) {
       resultRef.current.scrollTop = resultRef.current.scrollHeight
@@ -194,7 +194,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
       role="region"
       aria-labelledby="result-heading"
     >
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
         <div className="flex items-center">
           <span className="text-2xl sm:text-3xl mr-3 sm:mr-4">{selectedLevel.emoji}</span>
@@ -219,7 +219,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
           </div>
         </div>
         
-        {/* Action Buttons */}
+        {}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <motion.button
             onClick={onCopy}
@@ -305,7 +305,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
         </div>
       </div>
       
-      {/* Metrics Box */}
+      {}
       <motion.div className="mb-4 sm:mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
         <MetricsBox
           originalWordCount={originalWordCount}
@@ -316,7 +316,7 @@ export const ResultPanel: React.FC<ResultPanelProps> = ({
         />
       </motion.div>
       
-      {/* Result Content */}
+      {}
       <motion.div 
         ref={resultRef}
         className="bg-white/80 dark:bg-neutral-800/80 rounded-xl p-4 sm:p-6 max-h-64 sm:max-h-96 overflow-y-auto shadow-soft"

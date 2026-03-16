@@ -32,7 +32,7 @@ export default function About() {
         <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/30 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto">
-              {/* Header */}
+              {}
               <div className="text-center mb-16">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl mb-6 shadow-lg">
                   <Brain className="w-10 h-10 text-white" />
@@ -45,7 +45,7 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Main Content */}
+              {}
               <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-lg p-8 md:p-12 mb-8">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
                   What is ELI5?
@@ -60,7 +60,7 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Core Features */}
+              {}
               <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-lg p-8 md:p-12 mb-8">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
                   Core Features
@@ -76,7 +76,7 @@ export default function About() {
                         AI-Powered Simplification
                       </h3>
                       <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                        Powered by Google Gemini AI, our tool understands context and intelligently transforms complex text 
+                        Powered by OpenAI GPT, our tool understands context and intelligently transforms complex text 
                         into clear, understandable explanations while preserving meaning.
                       </p>
                     </div>
@@ -118,7 +118,7 @@ export default function About() {
                 </div>
               </div>
 
-              {/* How It Works */}
+              {}
               <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-lg p-8 md:p-12 mb-8">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
                   How It Works
@@ -160,7 +160,7 @@ export default function About() {
                 </ol>
               </div>
 
-              {/* CTA */}
+              {}
               <div className="text-center">
                 <Link href="/simplify">
                   <button className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-200">

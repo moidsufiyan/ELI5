@@ -20,7 +20,7 @@ export function Skeleton({ className, children, ...props }: SkeletonProps & Reac
   )
 }
 
-// Text skeleton variants
+
 export function TextSkeleton({ 
   lines = 1, 
   className = '',
@@ -45,7 +45,7 @@ export function TextSkeleton({
   )
 }
 
-// Card skeleton
+
 export function CardSkeleton({ className = '' }: { className?: string }) {
   return (
     <div className={cn('card-elevated p-6 space-y-4', className)}>
@@ -59,7 +59,7 @@ export function CardSkeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// Form skeleton
+
 export function FormSkeleton({ className = '' }: { className?: string }) {
   return (
     <div className={cn('space-y-6', className)}>
@@ -80,7 +80,7 @@ export function FormSkeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// Result skeleton for loading states
+
 export function ResultSkeleton({ className = '' }: { className?: string }) {
   return (
     <div className={cn('card-elevated p-6 space-y-4', className)}>
@@ -102,7 +102,7 @@ export function ResultSkeleton({ className = '' }: { className?: string }) {
   )
 }
 
-// Button skeleton
+
 export function ButtonSkeleton({ 
   size = 'md', 
   className = '' 
@@ -121,7 +121,7 @@ export function ButtonSkeleton({
   )
 }
 
-// Avatar skeleton
+
 export function AvatarSkeleton({ 
   size = 'md', 
   className = '' 
@@ -140,7 +140,7 @@ export function AvatarSkeleton({
   )
 }
 
-// Table skeleton
+
 export function TableSkeleton({ 
   rows = 5, 
   columns = 4, 
@@ -152,13 +152,13 @@ export function TableSkeleton({
 }) {
   return (
     <div className={cn('space-y-3', className)}>
-      {/* Header */}
+      {}
       <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-5 w-full" />
         ))}
       </div>
-      {/* Rows */}
+      {}
       {Array.from({ length: rows }).map((_, rowIndex) => (
         <div key={rowIndex} className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
           {Array.from({ length: columns }).map((_, colIndex) => (
@@ -170,7 +170,7 @@ export function TableSkeleton({
   )
 }
 
-// Loading spinner with professional styling
+
 export function LoadingSpinner({ 
   size = 'md', 
   className = '' 
@@ -195,7 +195,7 @@ export function LoadingSpinner({
   )
 }
 
-// Pulse loading indicator
+
 export function PulseLoader({ 
   className = '' 
 }: { 
@@ -214,7 +214,7 @@ export function PulseLoader({
   )
 }
 
-// Typing indicator
+
 export function TypingIndicator({ 
   className = '' 
 }: { 
