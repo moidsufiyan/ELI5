@@ -27,5 +27,5 @@ if (process.env.MONGODB_URI) {
 // 3. Mount Router endpoints
 app.use('/api', apiLimiter, simplifyRoutes); 
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`ELI5 Standalone Backend listening on port ${PORT}`));
