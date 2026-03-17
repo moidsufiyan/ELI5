@@ -60,8 +60,9 @@ frontend/dist/
 frontend/.vite/
 frontend/.env.production
 
-# Vercel
+# Vercel & Next.js
 .vercel
+.next/
 *.log
 
 # Backend specific
