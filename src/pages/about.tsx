@@ -26,10 +26,10 @@ export default function About() {
         <meta name="description" content="Learn about ELI5 AI Simplifier - a professional text simplification tool powered by AI" />
       </Head>
 
-      <div className="min-h-screen flex flex-col">
+      <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-neutral-50 via-primary-50/20 to-neutral-100 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
         <Header />
 
-        <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/30 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
+        <main className="flex-1 overflow-y-auto w-full">
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto">
               {}

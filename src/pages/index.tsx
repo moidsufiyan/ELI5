@@ -31,10 +31,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
-      <div className="min-h-screen flex flex-col">
+      <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-neutral-50 via-primary-50/20 to-neutral-100 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
         <Header />
 
-        <main className="flex-1 bg-gradient-to-br from-neutral-50 via-primary-50/20 to-neutral-100 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800">
+        <main className="flex-1 overflow-y-auto w-full">
           <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
             {}
             <motion.div
