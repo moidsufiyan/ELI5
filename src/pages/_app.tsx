@@ -7,12 +7,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 
+import { SessionProvider } from 'next-auth/react'
+
 const inter = Inter({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
+  const { session, ...restProps } = pageProps as any
+
   return (
-    <>
+    <SessionProvider session={session}>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -49,6 +53,6 @@ export default function App({ Component, pageProps }: AppProps) {
           </AnimatePresence>
         </div>
       </ThemeProvider>
-    </>
+    </SessionProvider>
   )
 }
