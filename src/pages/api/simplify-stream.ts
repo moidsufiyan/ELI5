@@ -2,8 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
 
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "./auth/[...nextauth]"
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  // SECURITY CHECK: Demand valid JWT NextAuth Session
+  const session = await getServerSession(req, res, authOptions)
+  if (!session) {
+    return res.status(401).json({ error: "Unauthorized. Please Sign In." })
+  }
 
   try {
     const response = await fetch(`${BACKEND_URL}/api/simplify-stream`, {
