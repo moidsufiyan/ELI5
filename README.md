@@ -1,4 +1,4 @@
-﻿# ELI5 AI - Transform Complex Ideas into Simple Explanations
+# ELI5 AI - Transform Complex Ideas into Simple Explanations
 
 A modern, AI-powered text simplification platform that transforms complex topics into crystal-clear explanations using **Groq AI (LLaMA-3.3-70b)**.
 
@@ -8,7 +8,7 @@ A modern, AI-powered text simplification platform that transforms complex topics
 - **Next.js 14** — React framework with Pages Router
 - **TypeScript** — Type safety
 - **Tailwind CSS** — Utility-first styling
-- **NextAuth.js** — Authentication (Google OAuth + demo credentials)
+- **NextAuth.js** — Authentication (Google + GitHub OAuth)
 - **Zustand** — Global state management
 - **Framer Motion** — Animations
 
@@ -79,12 +79,6 @@ npm run dev
 # Frontend running at http://localhost:3000
 ```
 
-### 4. Demo Login
-
-Without OAuth configured, use the built-in demo credentials:
-- **Email:** `demo@eli5.ai`
-- **Password:** `password123`
-
 ## API Reference
 
 ### Backend Endpoints (port 8000)
@@ -143,7 +137,7 @@ Ensure `.env.local` contains `NEXTAUTH_SECRET` and `NEXTAUTH_URL`.
 
 ## Deployment
 
-See [DEPLOYMENT_COMPLETE.md](./DEPLOYMENT_COMPLETE.md) for Vercel + backend deployment details.
+Deploy the backend Node/Express server and frontend Next.js application to your cloud providers (e.g., Vercel, Render, Railway), making sure to set all environment variables listed in the configuration section.
 
 **Important after each deployment:** Increment `CACHE_VERSION` in `public/sw.js` to invalidate
 the PWA service worker cache for all users.
