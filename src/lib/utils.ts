@@ -32,7 +32,9 @@ export const complexityLevels = [
   }
 ]
 
-export type ComplexityLevel = typeof complexityLevels[number]['value']
+// NOTE: ComplexityLevel type is defined in store.ts (single source of truth).
+// Re-export it here so existing imports from utils.ts continue to work.
+export type { ComplexityLevel } from './store'
 
 export function getReadingTime(text: string): number {
   const wordsPerMinute = 200

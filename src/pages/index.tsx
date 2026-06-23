@@ -7,6 +7,8 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { motion } from 'framer-motion'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
 export default function Home() {
   return (
     <>
@@ -14,13 +16,13 @@ export default function Home() {
         title="ELI5 AI Simplifier - Professional Text Simplification"
         description="Transform complex information into accessible, clear communication through AI-powered simplification."
         type="website"
-        canonical={typeof window !== 'undefined' ? window.location.origin + '/' : undefined}
+        canonical={APP_URL + '/'}
         image="/og.png"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           name: 'ELI5 AI Simplifier',
-          url: typeof window !== 'undefined' ? window.location.origin : undefined
+          url: APP_URL
         }}
       />
       <Head>
@@ -89,7 +91,7 @@ export default function Home() {
                   <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-3">AI-Powered Simplification</h3>
-                <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">Advanced OpenAI GPT intelligently transforms complex text into clear, understandable explanations</p>
+                <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">Powered by Groq's ultra-fast LLaMA model — intelligently transforms complex text into clear, understandable explanations</p>
               </motion.div>
               
               {}

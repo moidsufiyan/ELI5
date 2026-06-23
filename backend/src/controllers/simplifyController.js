@@ -1,16 +1,77 @@
 const Simplification = require('../models/Simplification');
 
-// 1. Get History
+// ── Shared helpers ────────────────────────────────────────────────────────────
+
+const LEVEL_PROMPTS = {
+  ELI5: "Explain this like I'm 5 years old. Use very simple words, short sentences, and fun analogies a child would understand.",
+  ELI15: "Explain this like I'm 15 years old. Use clear language, some technical terms are okay, but keep it engaging.",
+  normal: "Provide a comprehensive, adult-level explanation with proper terminology and depth.",
+};
+
+/**
+ * Fetch a Wikipedia summary for a given topic.
+ * Returns { title, summary } or null on failure.
+ */
+async function fetchWikiContext(topic) {
+  if (!topic?.trim()) return null;
+
+  // FIX: Use replaceAll so multi-word topics produce a correct Wikipedia slug.
+  const slug = encodeURIComponent(topic.trim().replaceAll(' ', '_'));
+  try {
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
+      headers: { 'User-Agent': 'ELI5-Simplifier/1.0', Accept: 'application/json' },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      title: data.title || '',
+      summary: (data.extract || '').substring(0, 500),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build the final AI prompt from text, level, and optional wiki context.
+ */
+function buildPrompt(text, level, wikiContext) {
+  const instruction = LEVEL_PROMPTS[level] || LEVEL_PROMPTS.ELI5;
+  let prompt = wikiContext?.summary
+    ? `Context from Wikipedia about "${wikiContext.title}":\n${wikiContext.summary}\n\nNow ${instruction}: ${text.trim()}`
+    : `${instruction}: ${text.trim()}`;
+  prompt += ' Write in plain text without markdown formatting.';
+  return prompt;
+}
+
+/**
+ * Persist a simplification to MongoDB (non-blocking, errors are swallowed).
+ */
+async function saveToDb(original, simplified, level, wikiContext) {
+  try {
+    await Simplification.create({
+      original_text: original,
+      simplified_text: simplified,
+      level: level || 'ELI5',
+      used_wiki: wikiContext !== null,
+      wiki_title: wikiContext?.title || null,
+    });
+  } catch (e) {
+    console.error('[DB] Failed to save simplification:', e.message);
+  }
+}
+
+// ── 1. GET /api/history ───────────────────────────────────────────────────────
 exports.getHistory = async (req, res) => {
   try {
     const list = await Simplification.find({}).sort({ timestamp: -1 }).limit(10).lean();
     return res.json(list);
-  } catch (err) {
+  } catch {
     return res.json([]);
   }
 };
 
-// 2. Regular Simplify
+// ── 2. POST /api/simplify (non-streaming) ─────────────────────────────────────
 exports.simplify = async (req, res) => {
   const { text, complexity, useWikipedia, topic } = req.body;
   if (!text) return res.status(400).json({ status: 'fail', error: 'Text is required' });
@@ -18,77 +79,47 @@ exports.simplify = async (req, res) => {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return res.status(500).json({ status: 'fail', error: 'GROQ_API_KEY is not configured' });
 
+  const level = complexity || 'ELI5';
+  const searchTopic = topic?.trim() || text.trim().split(/\s+/).slice(0, 3).join(' ');
+
   try {
-    let wiki_info = null;
-    const searchTopic = topic?.trim() || text.trim().split(/\s+/).slice(0, 3).join(' ');
-
-    if (useWikipedia && searchTopic) {
-      try {
-        const safeTopic = encodeURIComponent(searchTopic.replace(' ', '_'));
-        const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${safeTopic}`;
-        const wikiResponse = await fetch(wikiUrl, {
-          headers: { 'User-Agent': 'ELI5-Simplifier/1.0', 'Accept': 'application/json' }
-        });
-        if (wikiResponse.ok) {
-          const wikiData = await wikiResponse.json();
-          wiki_info = { title: wikiData.title || '', summary: (wikiData.extract || '').substring(0, 500) };
-        }
-      } catch (err) { }
-    }
-
-    const levelPrompts = { ELI5: "Explain this like I'm 5 years old", ELI15: "Explain this like I'm 15 years old", normal: "Provide an adult-level explanation" };
-    const instruction = levelPrompts[complexity] || "Explain this";
-
-    let aiPrompt = `${instruction}: ${text.trim()}`;
-    if (wiki_info && wiki_info.summary) {
-      aiPrompt = `Context from Wikipedia about "${wiki_info.title}":\n${wiki_info.summary}\n\nNow ${instruction}: ${text.trim()}`;
-    }
-    aiPrompt += `. Write in plain text without markdown formatting.`;
+    const wikiContext = useWikipedia ? await fetchWikiContext(searchTopic) : null;
+    const aiPrompt = buildPrompt(text, level, wikiContext);
 
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: aiPrompt }],
         max_tokens: 1024,
-        temperature: 0.7
-      })
+        temperature: 0.7,
+      }),
     });
 
     if (!aiResponse.ok) {
-        const errorData = await aiResponse.json();
-        return res.status(aiResponse.status).json({ status: 'fail', error: errorData.error?.message || 'AI Error' });
+      const errorData = await aiResponse.json().catch(() => ({}));
+      return res.status(aiResponse.status).json({ status: 'fail', error: errorData.error?.message || 'AI API Error' });
     }
 
     const aiData = await aiResponse.json();
-    const cleaned_text = (aiData.choices?.[0]?.message?.content || '').trim();
+    const simplified_text = (aiData.choices?.[0]?.message?.content || '').trim();
 
-    try {
-      await Simplification.create({
-        original_text: text,
-        simplified_text: cleaned_text,
-        level: complexity || 'normal',
-        used_wiki: wiki_info !== null,
-        wiki_title: wiki_info?.title || null
-      });
-    } catch (e) {
-        console.error("DB Create Fail:", e.message);
-    }
+    await saveToDb(text, simplified_text, level, wikiContext);
 
     return res.json({
-      simplified_text: cleaned_text,
-      used_wiki: wiki_info !== null,
-      wiki_title: wiki_info?.title,
-      metrics: { original_length: text.length, simplified_length: cleaned_text.length }
+      simplified_text,
+      used_wiki: wikiContext !== null,
+      wiki_title: wikiContext?.title,
+      metrics: { original_length: text.length, simplified_length: simplified_text.length },
     });
-
   } catch (error) {
-    res.status(500).json({ status: 'fail', error: 'API Error execution block' });
+    console.error('[simplify] Error:', error.message);
+    res.status(500).json({ status: 'fail', error: 'Internal server error' });
   }
 };
 
-// 3. Streaming Simplify
+// ── 3. POST /api/simplify-stream (SSE streaming) ─────────────────────────────
 exports.simplifyStream = async (req, res) => {
   const { text, level, use_wiki, topic } = req.body;
   if (!text) return res.status(400).json({ status: 'fail', error: 'Text required' });
@@ -96,53 +127,56 @@ exports.simplifyStream = async (req, res) => {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return res.status(500).json({ status: 'fail', error: 'GROQ_API_KEY not set' });
 
+  const effectiveLevel = level || 'ELI5';
+  const searchTopic = topic?.trim() || text.trim().split(/\s+/).slice(0, 3).join(' ');
+
+  // Set SSE headers before any async work so the client knows the content type.
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx/proxy buffering
+
+  // Clean up if the client disconnects mid-stream.
+  let clientGone = false;
+  req.on('close', () => { clientGone = true; });
+
+  const send = (data) => {
+    if (!clientGone) res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
   try {
-    let wiki_info = null;
-    const searchTopic = topic?.trim() || text.trim().split(/\s+/).slice(0, 3).join(' ');
+    const wikiContext = use_wiki ? await fetchWikiContext(searchTopic) : null;
+    if (clientGone) return;
 
-    if (use_wiki && searchTopic) {
-      try {
-        const safeTopic = encodeURIComponent(searchTopic.replace(' ', '_'));
-        const wikiResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${safeTopic}`);
-        if (wikiResponse.ok) {
-          const wikiData = await wikiResponse.json();
-          wiki_info = { title: wikiData.title || '', summary: (wikiData.extract || '').substring(0, 500) };
-        }
-      } catch (e) { }
-    }
+    const aiPrompt = buildPrompt(text, effectiveLevel, wikiContext);
 
-    const levelPrompts = { ELI5: "Explain this like I'm 5 years old", ELI15: "Explain this like I'm 15 years old", normal: "Adult-level" };
-    const instruction = levelPrompts[level] || "Explain this";
-
-    let aiPrompt = `${instruction}: ${text.trim()}`;
-    if (wiki_info && wiki_info.summary) {
-      aiPrompt = `Context from Wikipedia about "${wiki_info.title}":\n${wiki_info.summary}\n\nNow ${instruction}: ${text.trim()}`;
-    }
+    send({ type: 'metadata', used_wiki: wikiContext !== null, wiki_title: wikiContext?.title });
 
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: aiPrompt }],
         max_tokens: 1024,
         temperature: 0.7,
-        stream: true
-      })
+        stream: true,
+      }),
     });
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    res.write(`data: ${JSON.stringify({ type: 'metadata', used_wiki: wiki_info !== null, wiki_title: wiki_info?.title })}\n\n`);
+    if (!aiResponse.ok) {
+      const errorData = await aiResponse.json().catch(() => ({}));
+      send({ type: 'error', error: errorData.error?.message || 'AI API Error' });
+      res.end();
+      return;
+    }
 
     if (aiResponse.body) {
       const reader = aiResponse.body.getReader();
       const decoder = new TextDecoder();
       let current_text = '';
 
-      while (true) {
+      while (!clientGone) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -150,7 +184,7 @@ exports.simplifyStream = async (req, res) => {
         const lines = chunk.split('\n');
 
         for (const line of lines) {
-          const dataStr = line.replace('data: ', '').trim();
+          const dataStr = line.replace(/^data: /, '').trim();
           if (dataStr === '[DONE]' || !dataStr) continue;
 
           try {
@@ -158,28 +192,41 @@ exports.simplifyStream = async (req, res) => {
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
               current_text += content;
-              res.write(`data: ${JSON.stringify({ type: 'content', current_text: current_text })}\n\n`);
+              send({ type: 'content', current_text });
             }
-          } catch (e) { }
+          } catch { /* malformed SSE chunk – skip */ }
         }
       }
 
-      try {
-        await Simplification.create({
-          original_text: text,
-          simplified_text: current_text.trim(),
-          level: level || 'normal',
-          used_wiki: wiki_info !== null,
-          wiki_title: wiki_info?.title || null
-        });
-      } catch (e) { }
-
-      res.write(`data: ${JSON.stringify({ type: 'complete', final_text: current_text.trim() })}\n\n`);
+      if (!clientGone) {
+        await saveToDb(text, current_text.trim(), effectiveLevel, wikiContext);
+        send({ type: 'complete', final_text: current_text.trim() });
+      }
     }
-    res.end();
 
-  } catch (error) {
-    res.write(`data: ${JSON.stringify({ type: 'error', error: 'Stream failed' })}\n\n`);
     res.end();
+  } catch (error) {
+    console.error('[simplifyStream] Error:', error.message);
+    send({ type: 'error', error: 'Stream failed. Please try again.' });
+    res.end();
+  }
+};
+
+// ── 4. POST /api/explanations (unified endpoint – Phase 5) ───────────────────
+// Accepts: { text, mode, stream, useWikipedia, topic }
+// Routes to streaming or regular response based on body.stream flag.
+exports.explanations = async (req, res) => {
+  // Normalise field names to match existing handlers
+  const { text, mode, stream, useWikipedia, use_wiki, topic } = req.body;
+
+  if (stream) {
+    // Delegate to streaming handler using its expected field names
+    req.body.level = mode;
+    req.body.use_wiki = useWikipedia ?? use_wiki ?? false;
+    return exports.simplifyStream(req, res);
+  } else {
+    // Delegate to regular handler using its expected field names
+    req.body.complexity = mode;
+    return exports.simplify(req, res);
   }
 };

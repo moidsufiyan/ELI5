@@ -39,15 +39,26 @@ export default function SimplifyPage() {
   const { preferences, draftText, setDraftText, addToHistory } = useAppStore()
 
   const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState(draftText || '')
-  const [selectedComplexity, setSelectedComplexity] = useState<ComplexityLevel>(preferences.defaultComplexity)
-  const [useWikipedia, setUseWikipedia] = useState(preferences.enableWikipedia)
+  // Use SSR-safe defaults — these are synced from the persisted store
+  // in a useEffect below, after Zustand rehydrates from localStorage.
+  const [inputValue, setInputValue] = useState('')
+  const [selectedComplexity, setSelectedComplexity] = useState<ComplexityLevel>('ELI5')
+  const [useWikipedia, setUseWikipedia] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info' | 'warning', message: string } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Sync local state from Zustand store after client-side rehydration.
+  // This runs once after mount, picking up any persisted values from localStorage.
+  useEffect(() => {
+    setInputValue(draftText || '')
+    setSelectedComplexity(preferences.defaultComplexity)
+    setUseWikipedia(preferences.enableWikipedia)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // empty deps: intentionally only on mount
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {

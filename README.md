@@ -1,302 +1,149 @@
-# ELI5 AI - Transform Complex Ideas into Simple Explanations
+﻿# ELI5 AI - Transform Complex Ideas into Simple Explanations
 
-🧠 **A modern, AI-powered text simplification platform** that transforms complex topics into crystal-clear explanations using Google's advanced Gemini AI.
+A modern, AI-powered text simplification platform that transforms complex topics into crystal-clear explanations using **Groq AI (LLaMA-3.3-70b)**.
 
-![ELI5 AI](https://img.shields.io/badge/ELI5-AI%20Powered-blue?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
-![FastAPI](https://img.shields.io/badge/FastAPI-Python-green?style=for-the-badge&logo=fastapi)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue?style=for-the-badge&logo=tailwindcss)
-
-## ✨ Core Features
-
-### 🎯 **Three Essential Complexity Levels**
-- **Simple** (ELI5): Easy-to-understand explanations using simple words
-- **General** (ELI15): Clear explanations with moderate complexity  
-- **Professional** (Normal): Comprehensive adult-level explanations with real-time streaming
-
-### 🧠 **AI-Powered Simplification**
-- **Google Gemini AI**: Advanced language model for intelligent text transformation
-- **Real-time Streaming**: ChatGPT-like word-by-word response for professional level
-- **Context Understanding**: Maintains meaning while simplifying complexity
-
-### 📚 **Optional Wikipedia Context**
-- **Enhanced Explanations**: Automatically add relevant Wikipedia information
-- **Richer Understanding**: Additional context for complex topics
-- **Toggleable**: Enable or disable in settings based on preference
-
-### 🎨 **Essential Professional Design**
-- **Light & Dark Themes**: Clean, accessible interface with theme switching
-- **Responsive Design**: Works perfectly on all devices
-- **Inter Typography**: Text-focused design with optimal readability
-- **Essential Animations**: Minimal, focused feedback animations
-- **Local Storage**: Browser-based preferences and basic history (no cloud features)
-
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type safety and better development
-- **Tailwind CSS** - Modern utility-first styling
-- **React Hook Form + Zod** - Type-safe form validation
-- **Lucide React** - Beautiful, customizable icons
+- **Next.js 14** — React framework with Pages Router
+- **TypeScript** — Type safety
+- **Tailwind CSS** — Utility-first styling
+- **NextAuth.js** — Authentication (Google OAuth + demo credentials)
+- **Zustand** — Global state management
+- **Framer Motion** — Animations
 
-### Backend  
-- **FastAPI** - Modern Python web framework
-- **Google Gemini AI** - Advanced language model
-- **Server-Sent Events** - Real-time streaming responses
-- **Pydantic** - Data validation and serialization
-- **Uvicorn** - High-performance ASGI server
+### Backend
+- **Node.js + Express** — REST API server
+- **Groq AI API** — LLaMA-3.3-70b language model
+- **MongoDB + Mongoose** — Simplification history storage
+- **Helmet + express-rate-limit** — Security middleware
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- **Node.js** 18+ and npm
-- **Python** 3.8+ and pip  
-- **Google Gemini API Key** ([Get it here](https://makersuite.google.com/app/apikey))
+- Node.js 18+
+- A [Groq API key](https://console.groq.com/) (free tier available)
+- MongoDB Atlas connection string
 
-### 1. Clone & Setup
-```bash
+### 1. Clone & Install
+
+```powershell
 git clone <repository-url>
 cd ELI5
 
-# Copy environment template
-cp .env.example .env.local
-```
-
-### 2. Environment Configuration
-Add your API key to `.env.local`:
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-BACKEND_URL=http://localhost:8000
-```
-
-### 3. Install Dependencies
-```bash
-# Frontend dependencies
+# Install frontend dependencies
 npm install
 
-# Backend dependencies (in PowerShell)
+# Install backend dependencies
 cd backend
-pip install -r requirements.txt
+npm install
 cd ..
 ```
 
-### 4. Start Development Servers
+### 2. Configure Environment
 
-**Terminal 1 - Backend**
-```powershell
-cd backend
-python main.py
-# 🚀 Backend running at http://localhost:8000
+Copy and fill in both environment files:
+
+**Root `.env.local`** (for Next.js frontend):
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=<generate: openssl rand -base64 32>
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+MONGODB_URI=your_mongodb_atlas_connection_string
+BACKEND_URL=http://localhost:8000
+NODE_ENV=development
 ```
 
-**Terminal 2 - Frontend**  
+**`backend/.env`** or root `.env` (for the Express backend):
+```env
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.3-70b-versatile
+MONGODB_URI=your_mongodb_atlas_connection_string
+PORT=8000
+NODE_ENV=development
+```
+
+### 3. Start Development Servers
+
+**Terminal 1 — Backend (Express)**
+```powershell
+cd backend
+npm start
+# Backend running at http://localhost:8000
+```
+
+**Terminal 2 — Frontend (Next.js)**
 ```powershell
 npm run dev
-# 🚀 Frontend running at http://localhost:3000
+# Frontend running at http://localhost:3000
 ```
 
-### 5. Open Your Browser
-- **App**: http://localhost:3000
-- **API Docs**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/api/health
+### 4. Demo Login
 
-## 📡 API Reference
+Without OAuth configured, use the built-in demo credentials:
+- **Email:** `demo@eli5.ai`
+- **Password:** `password123`
 
-### Backend Endpoints
-```
-POST   /api/simplify        # Standard text simplification
-POST   /api/simplify-stream # Streaming text simplification  
-GET    /api/health         # Health check
-GET    /api/wiki/{topic}   # Wikipedia summary lookup
-GET    /docs               # Interactive API documentation
-```
+## API Reference
 
-### Frontend Routes
-```
-GET    /                   # Welcome homepage
-GET    /simplify           # Simplification interface
-POST   /api/simplify       # Proxy to backend
-POST   /api/simplify-stream # Streaming proxy
-```
+### Backend Endpoints (port 8000)
 
-## 💡 Usage Guide
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/simplify` | Non-streaming simplification |
+| `POST` | `/api/simplify-stream` | SSE streaming simplification |
+| `POST` | `/api/explanations` | Unified endpoint (`{ text, mode, stream }`) |
+| `GET` | `/api/history` | Last 10 simplifications |
 
-### Basic Usage
-1. 📝 **Enter your complex text** (scientific papers, technical docs, etc.)
-2. 🎯 **Choose complexity level** (ELI5, ELI15, or Normal)
-3. ⚡ **Get AI explanation** with real-time streaming for Normal level
-4. 📋 **Copy and share** your simplified explanation
-
-### Pro Tips
-- **Complex Topics**: Works great with quantum physics, machine learning, blockchain
-- **Academic Papers**: Paste abstracts or full sections for clear summaries
-- **Technical Documentation**: Transform API docs into understandable guides
-- **Streaming Mode**: Select "Normal" level for ChatGPT-like live responses
-
-## 🏗 Project Structure
-
-```
-ELI5/
-├── 🎨 src/
-│   ├── components/         # React components
-│   │   ├── ui/             # Core UI component library
-│   │   │   ├── Button.tsx
-│   │   │   ├── Card.tsx
-│   │   │   └── TextArea.tsx
-│   │   ├── Header.tsx
-│   │   ├── Footer.tsx
-│   │   ├── ThemeProvider.tsx
-│   │   └── SimplificationForm.tsx
-│   ├── pages/             # Next.js pages & API routes
-│   │   ├── api/           # API proxy routes
-│   │   ├── _app.tsx       # App root with theme provider
-│   │   ├── index.tsx      # Professional landing page
-│   │   ├── simplify.tsx   # Main simplification interface
-│   │   ├── about.tsx      # About page
-│   │   └── settings.tsx   # Settings page
-│   ├── lib/               # Utilities & state management
-│   │   ├── utils.ts       # Utility functions
-│   │   └── store.ts       # Zustand store for local state
-│   └── styles/            # Global CSS & Tailwind
-├── 🐍 backend/
-│   ├── main.py            # FastAPI application
-│   └── requirements.txt   # Python dependencies
-├── 📦 package.json        # Node.js configuration
-└── 🏛 tailwind.config.js   # Professional color system
+### Request Body (`/api/simplify`)
+```json
+{
+  "text": "Text to simplify (10-5000 chars)",
+  "complexity": "ELI5 | ELI15 | normal",
+  "useWikipedia": true,
+  "topic": "optional topic for Wikipedia lookup"
+}
 ```
 
-## 🌍 Deployment
-
-### 🚀 Serverless Deployment to Vercel (Recommended)
-
-Your ELI5 AI Simplifier is now configured for **serverless deployment** with both frontend and backend on Vercel!
-
-#### Quick Deploy (5 minutes)
-```bash
-# 1. Install Vercel CLI
-npm install -g vercel
-
-# 2. Login
-vercel login
-
-# 3. Deploy
-vercel
-
-# 4. Add GEMINI_API_KEY in Vercel Dashboard
-# Settings → Environment Variables → Add: GEMINI_API_KEY
-
-# 5. Deploy to production
-vercel --prod
+### Request Body (`/api/explanations` — unified)
+```json
+{
+  "text": "Text to simplify",
+  "mode": "ELI5 | ELI15 | normal",
+  "stream": false,
+  "useWikipedia": true,
+  "topic": "optional"
+}
 ```
 
-#### What's Deployed?
-- ✅ Next.js Frontend (React, TypeScript, Tailwind)
-- ✅ Python Serverless Functions (API endpoints)
-- ✅ Automatic HTTPS & CDN
-- ✅ Auto-scaling
-- ✅ Zero server management
+## Troubleshooting
 
-#### Deployment Files
-- `/api/` - Python serverless functions
-- `vercel.json` - Vercel configuration
-- `requirements.txt` - Python dependencies
-- `.vercelignore` - Excluded files
+### EINVAL error on Windows / OneDrive
 
-📚 **Full Guide**: See [`VERCEL_DEPLOYMENT.md`](./VERCEL_DEPLOYMENT.md) for detailed instructions
+If you see `EINVAL: invalid argument, readlink '.next/...'`:
 
-⚡ **Quick Reference**: See [`DEPLOY_QUICK_START.md`](./DEPLOY_QUICK_START.md) for cheat sheet
-
-### Alternative: Traditional Deployment
-
-If you prefer separate frontend/backend deployment:
-
-#### Frontend (Vercel)
-```bash
-git push origin main
-vercel --prod
+```powershell
+Remove-Item -Recurse -Force .next
+npm run dev
 ```
 
-#### Backend (Railway/Render)
-```bash
-cd backend
-echo "web: uvicorn main:app --host 0.0.0.0 --port \$PORT" > Procfile
-# Deploy to Railway or Render
-```
+This is caused by OneDrive creating junction points in the `.next` build cache.
+Consider moving the project outside of OneDrive.
 
-## 🔧 Development
+### Backend not starting
 
-### Adding New Features
-- **Components**: Add to `src/components/`
-- **API Routes**: Add to `src/pages/api/`
-- **Backend Logic**: Extend `backend/main.py`
-- **Styling**: Use Tailwind utilities or extend `globals.css`
+1. Verify `GROQ_API_KEY` is set in the root `.env`
+2. Run `cd backend && npm start` — check for missing module errors
+3. Ensure MongoDB URI is accessible from your network
 
-### Code Quality
-- ✅ **TypeScript** for type safety
-- ✅ **ESLint** for code quality
-- ✅ **Prettier** for consistent formatting
-- ✅ **Responsive Design** mobile-first approach
+### Auth redirect loop
 
-## 🐛 Troubleshooting
+Ensure `.env.local` contains `NEXTAUTH_SECRET` and `NEXTAUTH_URL`.
 
-| Issue | Solution |
-|-------|----------|
-| ❌ API Key Error | Check `GEMINI_API_KEY` in `.env.local` |
-| 🌐 CORS Issues | Restart backend server |
-| 🔌 Connection Failed | Ensure both servers are running |
-| 📦 Dependencies | Run `npm install` and `pip install -r requirements.txt` |
+## Deployment
 
-### Debug Commands
-```bash
-# Check backend health
-curl http://localhost:8000/api/health
+See [DEPLOYMENT_COMPLETE.md](./DEPLOYMENT_COMPLETE.md) for Vercel + backend deployment details.
 
-# Check frontend build
-npm run build
-
-# View backend logs
-cd backend && python main.py
-```
-
-## 🤝 Contributing
-
-1. 🍴 Fork the repository
-2. 🌿 Create feature branch (`git checkout -b feature/amazing-feature`)
-3. 📝 Make your changes
-4. ✅ Test thoroughly
-5. 📤 Submit pull request
-
-### Development Workflow
-```bash
-# Start development
-npm run dev          # Frontend
-cd backend && python main.py  # Backend
-
-# Code quality
-npm run lint         # Check code
-npm run build        # Test build
-```
-
-## 📄 License
-
-**MIT License** - Feel free to use this project for personal or commercial purposes.
-
-## 🙏 Acknowledgments
-
-- 🧠 **Google Gemini AI** - Powering intelligent text simplification
-- ⚡ **Vercel** - Seamless frontend deployment
-- 🎨 **Tailwind CSS** - Beautiful, responsive design system
-- 🚀 **Next.js Team** - Amazing React framework
-- 🐍 **FastAPI** - Modern, fast Python web framework
-
----
-
-<div align="center">
-
-**Made with ❤️ for better learning and understanding**
-
-[⭐ Star this repo](https://github.com/your-username/eli5-ai) • [🐛 Report Bug](https://github.com/your-username/eli5-ai/issues) • [💡 Request Feature](https://github.com/your-username/eli5-ai/issues)
-
-</div>
+**Important after each deployment:** Increment `CACHE_VERSION` in `public/sw.js` to invalidate
+the PWA service worker cache for all users.

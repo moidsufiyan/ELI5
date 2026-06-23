@@ -3,7 +3,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 class MyDocument extends Document {
   render() {
     return (
-      <Html lang="en">
+      <Html lang="en" suppressHydrationWarning>
         <Head>
           <meta name="theme-color" content="#0ea5e9" />
           <link rel="manifest" href="/manifest.json" />
@@ -11,7 +11,7 @@ class MyDocument extends Document {
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         </Head>
-        <body>
+        <body suppressHydrationWarning>
           <Main />
           <NextScript />
         </body>

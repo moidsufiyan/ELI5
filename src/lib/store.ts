@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 
 export type ComplexityLevel = 'ELI5' | 'ELI15' | 'normal'
@@ -91,12 +91,18 @@ export const useAppStore = create<AppState>()(
       setDraftText: (text: string) => set({ draftText: text }),
     }),
     {
-      name: 'eli5-storage', 
+      name: 'eli5-storage',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         preferences: state.preferences,
         history: state.history,
         draftText: state.draftText,
       }),
+      // Prevent Zustand from reading localStorage during SSR.
+      // Without this, SSR renders default values but client immediately
+      // hydrates from localStorage, causing a React hydration mismatch.
+      // Components must call useAppStore.persist.rehydrate() in useEffect.
+      skipHydration: true,
     }
   )
 )

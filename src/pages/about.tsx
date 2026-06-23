@@ -6,6 +6,8 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { Brain, Target, BookOpen, Sparkles } from 'lucide-react'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
 export default function About() {
   return (
     <>
@@ -13,7 +15,7 @@ export default function About() {
         title="About - ELI5 AI Simplifier"
         description="Learn about ELI5 AI Simplifier - a professional text simplification tool powered by AI"
         type="article"
-        canonical={typeof window !== 'undefined' ? window.location.origin + '/about' : undefined}
+        canonical={APP_URL + '/about'}
         image="/og.png"
         jsonLd={{
           '@context': 'https://schema.org',
@@ -76,7 +78,7 @@ export default function About() {
                         AI-Powered Simplification
                       </h3>
                       <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                        Powered by OpenAI GPT, our tool understands context and intelligently transforms complex text 
+                        Powered by Groq AI (LLaMA), our tool understands context and intelligently transforms complex text 
                         into clear, understandable explanations while preserving meaning.
                       </p>
                     </div>

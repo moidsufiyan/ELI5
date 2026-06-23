@@ -3,6 +3,12 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from 'next-auth/providers/github'
 
+// Security guard: NEXTAUTH_SECRET must be set in production.
+// A missing secret would allow sessions to be forged with the placeholder value.
+if (process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_SECRET) {
+  throw new Error('[NextAuth] NEXTAUTH_SECRET environment variable is required in production.')
+}
+
 export const authOptions: NextAuthOptions = {
   // Define authentication providers
   providers: [
@@ -61,7 +67,9 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
   debug: process.env.NODE_ENV === 'development',
-  secret: process.env.NEXTAUTH_SECRET || 'secret_placeholder_for_local_development',
+  // In production, NEXTAUTH_SECRET MUST be set (guarded above).
+  // In development, the placeholder is acceptable for local-only testing.
+  secret: process.env.NEXTAUTH_SECRET,
 }
 
 export default NextAuth(authOptions)
